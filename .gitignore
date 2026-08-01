@@ -1,0 +1,19 @@
+# LEX/YACC generated files
+lex.yy.c
+y.tab.c
+y.tab.h
+
+# Compiled object files
+*.o
+
+# Compiled binaries (built from source, not source itself)
+spl/spl
+xfs-interface/xfs-interface
+xsm_dev/xsm
+stage1/expr
+
+# Disk image created by ./init
+xfs-interface/disk.xfs
+
+# XSM executable outputs from generator programs (if you're regenerating these each time)
+*.xsm
