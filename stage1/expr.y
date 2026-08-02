@@ -9,6 +9,7 @@ void yyerror(char* s);
 
 #include "expr.h"
 struct tnode* root;
+FILE *target_file;
 void prefix(struct tnode *);
 void postfix(struct tnode *);
 %}
@@ -66,15 +67,36 @@ void postfix(struct tnode* t){
 void yyerror(char* s){
     printf("%s\n", s);
 }
+int nextfree=0;
+int getreg(){
+    int reg=nextfree;
+    nextfree++;
+    return reg;
+}
+void freereg(){
+    nextfree--;
+}
+int codegen(struct tnode *t){
+    if(t->op==NULL){
+        int r=getreg();
+        fprintf(target_file, "MOV R%d, %d\n",r,t->val);
+        return r;
+    }
+    else{
+        int p=codegen(t->left);
+        int q=codegen(t->right);
+        fprintf(target_file, "ADD R%d, R%d\n",p,q);
+        freereg();
+        return p;
+    }
+}
 int main(){
     yyparse();
-    printf("Prefix: ");
-    prefix(root);
-    printf("\n");
-
-    printf("Postfix: ");
-    postfix(root);
-    printf("\n");
-    
+    target_file = fopen("out.xsm", "w");
+    fprintf(target_file," %d\n %d\n %d\n %d\n %d\n %d\n %d\n %d\n ",0,2056,0,0,0,0,0,0);
+    int resultReg = codegen(root);
+    fprintf(target_file, "MOV [4096], R%d\n", resultReg);
+    fprintf(target_file, "BRKP\n");
+    fclose(target_file);
     return 0;
 }
