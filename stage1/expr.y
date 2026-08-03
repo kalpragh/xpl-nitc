@@ -20,16 +20,15 @@ void postfix(struct tnode *);
 
 %token <node> NUM
 %type <node> expr start
-%left '+' '-'
-%left '*' '/'
+
 %%
 start : expr '\n' { root=$1; YYACCEPT; }
         ;
-expr: expr '+' expr {$$= makeoperatornode('+', $1, $3); }
-| expr '-' expr {$$= makeoperatornode('-', $1, $3); }
-| expr '*' expr {$$= makeoperatornode('*', $1, $3); }
-| expr '/' expr {$$= makeoperatornode('/', $1, $3); }
-| '(' expr ')' { $$= $2; }
+
+expr: '+' expr expr {$$= makeoperatornode('+', $2, $3); }
+| '-' expr expr {$$= makeoperatornode('-', $2, $3); }
+| '*' expr expr {$$= makeoperatornode('*', $2, $3); }
+| '/' expr expr {$$= makeoperatornode('/', $2, $3); }
 | NUM {$$= $1; }
 ;
 %%
