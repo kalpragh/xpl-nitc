@@ -103,22 +103,46 @@ int codegen(struct tnode *t){
         return p;
     }
 }
+void writeResult(int reg){
+    fprintf(target_file, "MOV [4096], R%d\n", reg);
+
+    /* Write the result via library call */
+    fprintf(target_file, "MOV R2, \"Write\"\n");
+    fprintf(target_file, "PUSH R2\n");
+    fprintf(target_file, "MOV R2, -2\n");
+    fprintf(target_file, "PUSH R2\n");
+    fprintf(target_file, "PUSH R%d\n", reg);
+    fprintf(target_file, "PUSH R0\n");
+    fprintf(target_file, "PUSH R0\n");
+    fprintf(target_file, "CALL 0\n");
+    fprintf(target_file, "POP R0\n");
+    fprintf(target_file, "POP R0\n");
+    fprintf(target_file, "POP R0\n");
+    fprintf(target_file, "POP R0\n");
+    fprintf(target_file, "POP R0\n");
+
+    /* Exit cleanly via library call */
+    fprintf(target_file, "MOV R2, \"Exit\"\n");
+    fprintf(target_file, "PUSH R2\n");
+    fprintf(target_file, "PUSH R0\n");
+    fprintf(target_file, "PUSH R0\n");
+    fprintf(target_file, "PUSH R0\n");
+    fprintf(target_file, "PUSH R0\n");
+    fprintf(target_file, "CALL 0\n");
+}
+
 int main(){
     yyparse();
-
     printf("Prefix: ");
     prefix(root);
     printf("\n");
-
     printf("Postfix: ");
     postfix(root);
     printf("\n");
-
     target_file = fopen("out.xsm", "w");
-    fprintf(target_file," %d\n %d\n %d\n %d\n %d\n %d\n %d\n %d\n ",0,2056,0,0,0,0,0,0);
+    fprintf(target_file," %d\n %d\n %d\n %d\n %d\n %d\n %d\n %d\n ",0,2056,0,0,0,0,0,1);
     int resultReg = codegen(root);
-    fprintf(target_file, "MOV [4096], R%d\n", resultReg);
-    fprintf(target_file, "BRKP\n");
+    writeResult(resultReg);
     fclose(target_file);
     return 0;
 }
