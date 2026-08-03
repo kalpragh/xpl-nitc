@@ -5,9 +5,12 @@
 %}
 %%
 [0-9]+  {yylval.node = makeleafnode(atoi(yytext)); return NUM;}
-"+"     {return '+';}
-"("     {return '(';}
-")"     {return ')';}
+"+" {return '+';}
+"-" {return '-';}
+"*" {return '*';}
+"/" {return '/';}
+"(" {return '(';}
+")" {return ')';}
 [ \t]   ;
 \n      {return '\n';}
 .       {return yytext[0];}

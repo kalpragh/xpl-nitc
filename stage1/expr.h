@@ -1,5 +1,5 @@
-#ifndef EXPRTREE_H
-#define EXPRTREE_H
+#ifndef EXPR_H
+#define EXPR_H
 
 typedef struct tnode{
     int val;

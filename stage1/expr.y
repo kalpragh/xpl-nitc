@@ -20,15 +20,18 @@ void postfix(struct tnode *);
 
 %token <node> NUM
 %type <node> expr start
-%left '+'
-
+%left '+' '-'
+%left '*' '/'
 %%
 start : expr '\n' { root=$1; YYACCEPT; }
         ;
-expr: expr '+' expr  {$$= makeoperatornode('+', $1, $3); }
-    | '(' expr ')' { $$= $2; }
-    | NUM {$$= $1; }
-    ;
+expr: expr '+' expr {$$= makeoperatornode('+', $1, $3); }
+| expr '-' expr {$$= makeoperatornode('-', $1, $3); }
+| expr '*' expr {$$= makeoperatornode('*', $1, $3); }
+| expr '/' expr {$$= makeoperatornode('/', $1, $3); }
+| '(' expr ')' { $$= $2; }
+| NUM {$$= $1; }
+;
 %%
 struct tnode *makeleafnode(int n){
     struct tnode* temp=(struct tnode*)malloc(sizeof(struct tnode));
@@ -85,13 +88,33 @@ int codegen(struct tnode *t){
     else{
         int p=codegen(t->left);
         int q=codegen(t->right);
-        fprintf(target_file, "ADD R%d, R%d\n",p,q);
+        if(t->op[0]=='+'){
+            fprintf(target_file, "ADD R%d, R%d\n",p,q);
+        }
+        else if(t->op[0]=='-'){
+            fprintf(target_file, "SUB R%d, R%d\n",p,q);
+        }
+        else if(t->op[0]=='*'){
+            fprintf(target_file, "MUL R%d, R%d\n",p,q);
+        }
+        else if(t->op[0]=='/'){
+            fprintf(target_file, "DIV R%d, R%d\n",p,q);
+        }
         freereg();
         return p;
     }
 }
 int main(){
     yyparse();
+
+    printf("Prefix: ");
+    prefix(root);
+    printf("\n");
+
+    printf("Postfix: ");
+    postfix(root);
+    printf("\n");
+
     target_file = fopen("out.xsm", "w");
     fprintf(target_file," %d\n %d\n %d\n %d\n %d\n %d\n %d\n %d\n ",0,2056,0,0,0,0,0,0);
     int resultReg = codegen(root);
