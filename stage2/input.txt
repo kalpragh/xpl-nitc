@@ -1,0 +1,5 @@
+begin
+read(a);
+d = a + 2*b;
+write(d);
+end
