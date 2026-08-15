@@ -21,8 +21,10 @@ int memory[26] = {0};
 %token START END READ WRITE
 %token IF THEN ELSE ENDIF
 %token WHILE DO ENDWHILE
+%token LE GE EQ NE
 
-%left '<'
+
+%left '<' '>' LE GE EQ NE
 %left '+' '-'
 %left '*' '/'
 
@@ -77,6 +79,11 @@ Expr:
   | Expr '*' Expr { $$ = createtree(0,TYPE_NONE,'*',NULL,$1,NULL,$3); }
   | Expr '/' Expr { $$ = createtree(0,TYPE_NONE,'/',NULL,$1,NULL,$3); }
   | Expr '<' Expr { $$ = createtree(0,TYPE_NONE,'<',NULL,$1,NULL,$3); }
+  | Expr '>' Expr { $$ = createtree(0,TYPE_NONE,'>',NULL,$1,NULL,$3); }
+  | Expr LE Expr { $$ = createtree(0,TYPE_NONE,NODE_LE,NULL,$1,NULL,$3); }
+  | Expr GE Expr { $$ = createtree(0,TYPE_NONE,NODE_GE,NULL,$1,NULL,$3); }
+  | Expr EQ Expr { $$ = createtree(0,TYPE_NONE,NODE_EQ,NULL,$1,NULL,$3); }
+  | Expr NE Expr { $$ = createtree(0,TYPE_NONE,NODE_NE,NULL,$1,NULL,$3); }
   | '(' Expr ')'  { $$ = $2; }
   | NUM           { $$ = $1; }
   | ID            { $$ = $1; }
@@ -181,7 +188,27 @@ void printtree(struct tnode *t){
         case '<':
             printf("<\n");
             break;
+
+        case '>':
+            printf(">\n");
+            break;
+
+        case NODE_LE:
+            printf("<=\n");
+            break;
+
+        case NODE_GE:
+            printf(">=\n");
+            break;
+
+        case NODE_EQ:
+            printf("==\n");
+            break;
         
+        case NODE_NE:
+            printf("!=\n");
+            break;
+
         case '=':
             printf("=\n");
             break;

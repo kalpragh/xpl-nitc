@@ -1,9 +1,30 @@
 begin
+
 read(a);
 read(b);
+
 if (a < b) then
-    write(b);
-else
     write(a);
 endif;
+
+if (a > b) then
+    write(b);
+endif;
+
+if (a <= b) then
+    write(a);
+endif;
+
+if (a >= b) then
+    write(b);
+endif;
+
+if (a == b) then
+    write(a);
+endif;
+
+if (a != b) then
+    write(b);
+endif;
+
 end;
