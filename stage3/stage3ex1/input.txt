@@ -1,5 +1,23 @@
+//largest of 3
 begin
 read(a);
 read(b);
-write(a+b);
+read(c);
+if(a<b)then 
+ if(b<c)then write(c); else write(b); endif;
+else
+ if(a<c)then write(c); else write(a); endif;
+endif;
+end;
+
+//sum upto n
+begin
+read(n);
+s=0;
+i=1;
+while(i<=n)do
+    s=s+i;
+    i=i+1;
+endwhile;
+write(s);
 end;

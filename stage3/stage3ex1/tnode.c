@@ -20,7 +20,7 @@ struct tnode* createtree(int val,int type, int nodetype, char* varname,struct tn
         }
         type=TYPE_INT;
     }
-    else if(nodetype=='<'){
+    else if(nodetype=='<' || nodetype=='>' || nodetype==NODE_LE || nodetype==NODE_GE || nodetype==NODE_EQ || nodetype==NODE_NE){
         if(l->type!=TYPE_INT || r->type!=TYPE_INT){
             printf("Type error in comparison\n");
             exit(1);
