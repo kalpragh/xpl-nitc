@@ -26,7 +26,12 @@
 "do" { return DO; }
 "endwhile" { return ENDWHILE; }
 
+"<=" { return LE; }
+">=" { return GE; }
+"==" { return EQ; }
+"!=" { return NE; }
 "<" { return '<'; }
+">" { return '>'; }
 
 "begin" { return START; }
 "end"   { return END; }
