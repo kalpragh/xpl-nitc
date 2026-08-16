@@ -1,0 +1,28 @@
+begin
+i = 0;
+s = 0;
+do
+i = i+1;
+if (i==3) then
+continue;
+endif;
+if (i==7) then
+break;
+endif;
+s = s+i;
+while (i<10);
+write(s);
+j = 10;
+c = 0;
+repeat
+j = j-1;
+if (j==6) then
+continue;
+endif;
+if (j==2) then
+break;
+endif;
+c = c+1;
+until (j<=0);
+write(c);
+end;
