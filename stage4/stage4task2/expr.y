@@ -88,12 +88,16 @@ Slist:
 Stmt:
     ID '=' Expr ';'
     {
-        $$ = createtree(0,TYPE_NONE,'=',NULL,$1,NULL,$3);
+        struct tnode *idnode = createtree(0, TYPE_NONE, 'V', $1->varname, NULL, NULL, NULL);
+
+        $$ = createtree(0, TYPE_NONE, '=', NULL, idnode, NULL, $3);
     }
 
   | READ '(' ID ')' ';'
     {
-        $$ = createtree(0,TYPE_NONE,'R',NULL,$3,NULL,NULL);
+        struct tnode *idnode = createtree(0, TYPE_NONE, 'V', $3->varname, NULL, NULL, NULL);
+
+        $$ = createtree(0, TYPE_NONE, 'R', NULL, idnode, NULL, NULL);
     }
 
   | WRITE '(' Expr ')' ';'
@@ -146,7 +150,7 @@ Expr:
   | Expr NE Expr { $$ = createtree(0,TYPE_NONE,NODE_NE,NULL,$1,NULL,$3); }
   | '(' Expr ')'  { $$ = $2; }
   | NUM           { $$ = $1; }
-  | ID            { $$ = $1; }
+  | ID            { $$ = createtree(0,TYPE_NONE,'V',$1->varname,NULL,NULL,NULL); }
 ;
 
 

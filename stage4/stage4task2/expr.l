@@ -46,7 +46,15 @@
 "str" { return STR; }
 
 [a-zA-Z][a-zA-Z0-9]* {
-    yylval.node = createtree(0, TYPE_NONE, 'V',strdup(yytext),NULL, NULL, NULL);
+    yylval.node = malloc(sizeof(struct tnode));
+    yylval.node->val = 0;
+    yylval.node->type = TYPE_NONE;
+    yylval.node->nodetype = 'V';
+    yylval.node->varname = strdup(yytext);
+    yylval.node->Gentry = NULL;
+    yylval.node->left = NULL;
+    yylval.node->middle = NULL;
+    yylval.node->right = NULL;
     return ID;
 }
 
