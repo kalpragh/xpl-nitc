@@ -3,6 +3,7 @@
 #define TYPE_NONE -1
 #define TYPE_BOOL 0
 #define TYPE_INT  1
+#define TYPE_STR 2
 
 #define NODE_LE 5
 #define NODE_GE 6
