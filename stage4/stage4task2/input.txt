@@ -1,0 +1,10 @@
+decl
+int a,b,c;
+enddecl
+
+begin
+read(a);
+read(b);
+c = a + b;
+write(c);
+end;
