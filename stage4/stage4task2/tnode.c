@@ -2,6 +2,7 @@
 #include <string.h>
 #include "tnode.h"
 #include <stdio.h>
+#include "symboltable.h"
 extern FILE *fp;
 #define MAX_LOOP_DEPTH 100
 int loopStartStack[MAX_LOOP_DEPTH];
@@ -27,40 +28,52 @@ void writeHeader(){
 struct tnode* createtree(int val,int type, int nodetype, char* varname,struct tnode* l, struct tnode *m, struct tnode* r)
 {
     struct tnode* temp = malloc(sizeof(struct tnode));
+    temp->val=val;
+    temp->type=type;
+    temp->nodetype=nodetype;
+    if(varname!=NULL)temp->varname=strdup(varname);
+    else temp->varname=NULL;
+    temp->left=l;
+    temp->middle=m;
+    temp->right=r;
 
-    if(nodetype=='N'){
-        type=TYPE_INT;
-    }
-    else if(nodetype=='V'){
-        type=TYPE_INT;
+    temp->Gentry=NULL;
+
+    if(nodetype=='V'){
+        temp->Gentry=Lookup(varname);
+        if(temp->Gentry==NULL){
+            printf("Error: Variable %s not declared",varname);
+            exit(1);
+        }
+        temp->type=temp->Gentry->type;
     }
     else if(nodetype=='+' || nodetype=='*'|| nodetype == '-' || nodetype == '/'){ //arithmatic
         if(l->type!=TYPE_INT || r->type !=TYPE_INT){
             printf("Type error: invalid operands\n");
             exit(1);
         }
-        type=TYPE_INT;
+        temp->type=TYPE_INT;
     }
     else if(nodetype=='<' || nodetype=='>' || nodetype==NODE_LE || nodetype==NODE_GE || nodetype==NODE_EQ || nodetype==NODE_NE){
         if(l->type!=TYPE_INT || r->type!=TYPE_INT){
             printf("Type error in comparison\n");
             exit(1);
         }
-        type=TYPE_BOOL; 
+        temp->type=TYPE_BOOL; 
     }
     else if(nodetype=='='){
         if(l->type!=r->type){
             printf("Type mismatch in assignment\n");
             exit(1);
         }
-        type=TYPE_NONE;
+        temp->type=TYPE_NONE;
     }
      else if(nodetype == 'I'){
         if(l->type != TYPE_BOOL){
             printf("Type error: IF condition must be boolean\n");
             exit(1);
         }
-        type = TYPE_NONE;
+        temp->type = TYPE_NONE;
     }
 
     else if(nodetype == 'L' || nodetype=='U' || nodetype=='D'){
@@ -68,24 +81,12 @@ struct tnode* createtree(int val,int type, int nodetype, char* varname,struct tn
             printf("Type error: WHILE condition must be boolean\n");
             exit(1);
         }
-        type = TYPE_NONE;
+        temp->type = TYPE_NONE;
     }
 
     else if(nodetype=='R' || nodetype=='W' || nodetype=='C'){
-        type=TYPE_NONE;
+        temp->type=TYPE_NONE;
     }
-    temp->val = val;
-    temp->type=type;
-    temp->nodetype = nodetype;
-
-    if(varname != NULL)
-        temp->varname = strdup(varname);  
-    else
-        temp->varname = NULL;
-
-    temp->left = l;
-    temp->middle=m;
-    temp->right = r;
 
     return temp;
 }
@@ -95,26 +96,21 @@ int codegen(struct tnode *t){
         return -1;
 
     switch(t->nodetype){
-
         case 'N': {
             int r = getreg();
             fprintf(fp, "MOV R%d, %d\n", r, t->val);
             return r;
         }
-
         case 'V': {
             int r = getreg();
-            int addr = 4096 + (t->varname[0] - 'a');
-            fprintf(fp, "MOV R%d, [%d]\n", r, addr);
+            fprintf(fp, "MOV R%d, [%d]\n", r, t->Gentry->binding);
             return r;
         }
 
         case '=': {
             int r = codegen(t->right);
 
-            int addr = 4096 + (t->left->varname[0] - 'a');
-
-            fprintf(fp, "MOV [%d], R%d\n", addr, r);
+            fprintf(fp, "MOV [%d], R%d\n", t->left->Gentry->binding,r);
 
             freereg();
 
@@ -245,7 +241,7 @@ int codegen(struct tnode *t){
         }
        case 'R':
         {
-            int addr = 4096 + (t->left->varname[0] - 'a');
+            int addr = t->left->Gentry->binding;
 
             fprintf(fp, "MOV R2, \"Read\"\n");
             fprintf(fp, "PUSH R2\n");
