@@ -1,0 +1,7 @@
+decl
+int a, b, c;
+str msg;
+enddecl
+
+begin
+end;
