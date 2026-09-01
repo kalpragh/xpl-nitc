@@ -1,0 +1,9 @@
+decl
+  int x, *p;
+enddecl
+begin
+  x=0;
+  p=&x;
+  read(*p);
+  write(x);
+end;

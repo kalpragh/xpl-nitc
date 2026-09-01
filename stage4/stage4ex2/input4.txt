@@ -1,0 +1,12 @@
+decl
+  int a, b, *pa, *pb, temp;
+enddecl
+begin
+  a=3; b=7;
+  pa=&a; pb=&b;
+  temp=*pa;
+  *pa=*pb;
+  *pb=temp;
+  write(a);
+  write(b);
+end;

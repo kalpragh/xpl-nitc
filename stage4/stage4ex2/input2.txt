@@ -1,0 +1,10 @@
+decl
+  int x, y, *p, *q;
+enddecl
+begin
+  x=5;  y=20;
+  p=&x; q=&y;
+  *p=*q+1;
+  write(x);
+  write(y);
+end;
