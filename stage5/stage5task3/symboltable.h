@@ -26,13 +26,15 @@ struct Gsymbol{
     int isPointer;
     int isFunction;
     int isDefined;
-    struct Paramstruct *paramlist;
     int flabel;
+    struct Paramstruct *paramlist;
+    int numLocals;    
     struct Lsymbol *locals;
     struct tnode *funcbody;
     struct Gsymbol *next;
 };
-
+void FreeLocalTable(struct Lsymbol *list);
+int GetLocalCount(void);
 struct Gsymbol *Lookup(char *name);
 void InstallVar(char *name,int type,int size,int isArray,int cols,int isPointer);
 void InstallFunc(char *name,int type,struct Paramstruct *paramlist);

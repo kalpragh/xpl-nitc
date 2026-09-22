@@ -90,7 +90,18 @@ ID {LETTER}({LETTER}|{DIGIT})*
         address += 2;
     }
 }
+^"CALL"[ \t]+{ID}[ \t]*\n {
+    char label[64];
 
+    sscanf(yytext, "CALL %s", label);
+
+    if(pass == 1)
+        address += 2;
+    else {
+        fprintf(fout, "CALL %d\n", lookupLabel(label));
+        address += 2;
+    }
+}
 ^.*\n {
     if(headerCount < 8) {
         headerCount++;

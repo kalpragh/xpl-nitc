@@ -8,7 +8,11 @@ struct Lsymbol *Lhead = NULL;
 struct Gsymbol *CurrentFunction = NULL;
 int nextBinding = 4096;
 int nextFlabel = 0;
-
+static int nextParamBinding;
+static int nextLocalBinding;
+int GetLocalCount(void){
+    return nextLocalBinding-1;
+}
 struct Gsymbol *GetCurrentFunction(void){
     return CurrentFunction;
 }
@@ -40,8 +44,7 @@ static void appendToGST(struct Gsymbol *temp){
         p->next = temp;
     }
 }
-static int nextParamBinding;
-static int nextLocalBinding;
+
 
 void LInstallVar(char *name, int type, int isPointer, int isParam){
     if(LLookup(name) != NULL){

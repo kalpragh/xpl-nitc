@@ -1,16 +1,16 @@
 decl
-    int add(int a, int b);
+    int getValue();
     int main();
 enddecl
 
-int add(int a, int b)
+int getValue()
 {
     decl
         int x;
     enddecl
 
     begin
-        x = a + b;
+        x = 42;
         return x;
     end
 }
@@ -20,7 +20,7 @@ decl
 enddecl
 
 begin
-    result = add(10, 20);
+    result = getValue();
     write(result);
     return 0;
 end

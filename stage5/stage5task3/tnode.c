@@ -12,6 +12,7 @@ int label=0;
 int nextfree=0;
 int arrayErrorLabel=-1;
 int codegen(struct tnode *t);
+struct Gsymbol *codegenFunc = NULL;   /* set by codegenFunction() below */
 int getlabel(){
     return label++;
 }
@@ -46,6 +47,19 @@ struct tnode *appendArg(struct tnode *list, struct tnode *p){
     while(q->right != NULL) q = q->right;
     q->right = p;
     return list;
+}
+int codegenScalarAddr(struct tnode *idnode){
+    int r = getreg();
+    if(idnode->Lentry != NULL){
+        fprintf(fp, "MOV R%d, BP\n", r);
+        if(idnode->Lentry->binding < 0)
+            fprintf(fp, "SUB R%d, %d\n", r, -idnode->Lentry->binding);
+        else
+            fprintf(fp, "ADD R%d, %d\n", r, idnode->Lentry->binding);
+    } else {
+        fprintf(fp, "MOV R%d, %d\n", r, idnode->Gentry->binding);
+    }
+    return r;
 }
 int codegenaddr2d(struct tnode *t){
     int r=getreg();
@@ -306,7 +320,12 @@ int codegen(struct tnode *t){
             return r;
         }
         case 'V': {
-            int r = getreg();
+            if(t->Lentry!=NULL){
+                int addr=codegenScalarAddr(t);
+                fprintf(fp, "MOV R%d, [R%d]\n",addr,addr);
+                return addr;
+            }
+            int r=getreg();
             fprintf(fp, "MOV R%d, [%d]\n", r, t->Gentry->binding);
             return r;
         }
@@ -336,11 +355,14 @@ int codegen(struct tnode *t){
                 freereg();
                 freereg();
             }
+            else if(t->left->Lentry != NULL){
+                int addr = codegenScalarAddr(t->left);
+                fprintf(fp, "MOV [R%d], R%d\n", addr, r);
+                freereg(); freereg();
+            }
             else
             {
-                fprintf(fp, "MOV [%d], R%d\n",
-                        t->left->Gentry->binding, r);
-
+                fprintf(fp, "MOV [%d], R%d\n", t->left->Gentry->binding, r);
                 freereg();
             }
 
@@ -474,22 +496,34 @@ int codegen(struct tnode *t){
             int addr;
             
             if(t->left->nodetype=='V'){
-                addr=t->left->Gentry->binding;
-
-            fprintf(fp, "MOV R2, \"Read\"\n");
-            fprintf(fp, "PUSH R2\n");
-            fprintf(fp, "MOV R2, -1\n");
-            fprintf(fp, "PUSH R2\n");
-            fprintf(fp, "MOV R2, %d\n", addr);
-            fprintf(fp, "PUSH R2\n");
-            fprintf(fp, "PUSH R0\n");
-            fprintf(fp, "PUSH R0\n");
-            fprintf(fp, "CALL 0\n");
-            fprintf(fp, "POP R0\n");
-            fprintf(fp, "POP R0\n");
-            fprintf(fp, "POP R0\n");
-            fprintf(fp, "POP R0\n");
-            fprintf(fp, "POP R0\n");
+                if(t->left->Lentry != NULL){
+                    int addr = codegenScalarAddr(t->left);
+                    fprintf(fp, "MOV R2, \"Read\"\n"); fprintf(fp, "PUSH R2\n");
+                    fprintf(fp, "MOV R2, -1\n"); fprintf(fp, "PUSH R2\n");
+                    fprintf(fp, "PUSH R%d\n", addr);
+                    fprintf(fp, "PUSH R0\n"); fprintf(fp, "PUSH R0\n");
+                    fprintf(fp, "CALL 0\n");
+                    fprintf(fp, "POP R0\n"); fprintf(fp, "POP R0\n"); fprintf(fp, "POP R0\n"); fprintf(fp, "POP R0\n"); fprintf(fp, "POP R0\n");
+                    freereg();
+                } 
+                else
+                {
+                    addr=t->left->Gentry->binding;
+                    fprintf(fp, "MOV R2, \"Read\"\n");
+                    fprintf(fp, "PUSH R2\n");
+                    fprintf(fp, "MOV R2, -1\n");
+                    fprintf(fp, "PUSH R2\n");
+                    fprintf(fp, "MOV R2, %d\n", addr);
+                    fprintf(fp, "PUSH R2\n");
+                    fprintf(fp, "PUSH R0\n");
+                    fprintf(fp, "PUSH R0\n");
+                    fprintf(fp, "CALL 0\n");
+                    fprintf(fp, "POP R0\n");
+                    fprintf(fp, "POP R0\n");
+                    fprintf(fp, "POP R0\n");
+                    fprintf(fp, "POP R0\n");
+                    fprintf(fp, "POP R0\n");
+                }
 
         }
         else if(t->left->nodetype==NODE_ARRAY){
@@ -642,7 +676,69 @@ int codegen(struct tnode *t){
             fprintf(fp, "MOV R%d, [R%d]\n",r,r);
             return r;
         }
+        
+
+        case NODE_CALL: {
+            int saved = nextfree;
+            for(int i=0;i<saved;i++) fprintf(fp,"PUSH R%d\n",i);
+
+            int n=0; struct tnode *a=t->right; while(a){n++;a=a->right;}
+            struct tnode **args = malloc(n*sizeof(*args));
+            a=t->right; for(int i=0;i<n;i++){ args[i]=a->left; a=a->right; }
+            for(int i=n-1;i>=0;i--){
+                int r = codegen(args[i]);
+                fprintf(fp,"PUSH R%d\n",r);
+                freereg();
+            }
+            free(args);
+
+            int rv = getreg();
+            fprintf(fp,"MOV R%d, 0\n",rv);
+            fprintf(fp,"PUSH R%d\n",rv);
+            freereg();
+
+            fprintf(fp,"CALL F%d\n", t->Gentry->flabel);
+
+            int result = getreg();
+            fprintf(fp,"POP R%d\n",result);
+            if(n>0) fprintf(fp,"SUB SP, %d\n", n);
+            for(int i=saved-1;i>=0;i--) fprintf(fp,"POP R%d\n",i);
+
+            return result;
+        }
+
+        case NODE_RETURN: {
+            if(codegenFunc->numLocals > 0)
+                fprintf(fp, "SUB SP, %d\n", codegenFunc->numLocals);
+            int r = codegen(t->left);
+            if(strcmp(codegenFunc->name, "main") == 0){
+                fprintf(fp, "HALT\n");
+            } else {
+                fprintf(fp, "MOV R%d, BP\n", getreg());  /* see note below */
+                fprintf(fp, "SUB R%d, 2\n", nextfree-1);
+                fprintf(fp, "MOV [R%d], R%d\n", nextfree-1, r);
+                freereg();
+                fprintf(fp, "POP BP\n");
+                fprintf(fp, "RET\n");
+            }
+            return -1;
+        }
+
       }
 
      return -1;
     }
+void codegenFunction(struct Gsymbol *f){
+    codegenFunc = f;
+    if(strcmp(f->name,"main") != 0){
+        fprintf(fp, "F%d:\n", f->flabel);
+        fprintf(fp, "PUSH BP\n");
+        fprintf(fp, "MOV BP, SP\n");
+    } else {
+        fprintf(fp, "F%d:\n", f->flabel);
+        fprintf(fp, "MOV BP, SP\n");
+    }
+    if(f->numLocals > 0) fprintf(fp, "ADD SP, %d\n", f->numLocals);
+    codegen(f->funcbody);
+    codegenFunc = NULL;
+}

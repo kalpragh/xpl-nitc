@@ -5,7 +5,7 @@
 #include"tnode.h"
 #include "symboltable.h"
 struct tnode *root;
-
+void codegenFunction(struct Gsymbol *f);
 int codegen(struct tnode *t);
 int yylex(void);
 int yyerror(char *s);
@@ -111,6 +111,7 @@ MainBlock:
         currentFunction->funcbody = $3; 
         currentFunction->locals = Lhead;  
         currentFunction->isDefined = 1;
+        currentFunction->numLocals = GetLocalCount();
         SetCurrentFunction(NULL);
         currentFunction = NULL;
     }
@@ -189,6 +190,7 @@ FDef:
     {
         currentFunction->funcbody = $9;
         currentFunction->locals=Lhead;
+        currentFunction->numLocals=GetLocalCount();
         currentFunction->isDefined = 1;
          
         SetCurrentFunction(NULL);
@@ -636,36 +638,44 @@ int yyerror(char *s){
     printf("Error: %s\n", s);
     return 1;
 }
-
 int main(int argc, char *argv[]){
-    char *infile = "input.txt";
-    if(argc > 1) infile = argv[1];
 
-    yyin = fopen(infile, "r");
+    yyin = fopen(argv[1], "r");
+
     if(yyin == NULL){
-        printf("Error: could not open input file %s\n", infile);
-        exit(1);
+        printf("Cannot open input file\n");
+        return 1;
     }
+
     yyparse();
-    fclose(yyin);
 
-     printf("\n===== GLOBAL SYMBOL TABLE =====\n");
-    PrintSymbolTable();
+    struct Gsymbol *mainFn = Lookup("main");
 
-    printf("\n===== FUNCTION ASTs =====\n");
-
-    struct Gsymbol *temp = Ghead;
-
-    while(temp != NULL)
-    {
-        if(temp->isFunction && temp->funcbody != NULL)
-        {
-            printf("\nAST for function %s:\n", temp->name);
-            printtree(temp->funcbody);
-        }
-
-        temp = temp->next;
+    if(mainFn == NULL){
+        printf("Error: main function not found\n");
+        return 1;
     }
+
+    fp = fopen("output.xsm", "w");
+
+    writeHeader();
+
+    fprintf(fp, "JMP F%d\n", mainFn->flabel);
+
+    struct Gsymbol *g = Ghead;
+
+    while(g != NULL){
+        if(g->isFunction)
+            codegenFunction(g);
+
+        g = g->next;
+    }
+
+    writeArrayErrorHandler();
+
+    fprintf(fp, "HALT\n");
+
+    fclose(fp);
 
     return 0;
 }
