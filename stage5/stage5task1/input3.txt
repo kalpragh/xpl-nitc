@@ -1,0 +1,7 @@
+decl
+  int foo(int a);
+  str foo(str b);
+enddecl
+begin
+  write(1);
+end;

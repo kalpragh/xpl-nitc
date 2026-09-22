@@ -1,0 +1,11 @@
+decl
+  int x, y[10], *p;
+  str name, mesg;
+  int add(int a, int b);
+  str greet(str who);
+  int noargfunc();
+enddecl
+begin
+  x = 5;
+  write(x);
+end;
