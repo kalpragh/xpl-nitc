@@ -1,0 +1,7 @@
+decl
+  int x;
+  int x;
+enddecl
+begin
+  write(1);
+end;
