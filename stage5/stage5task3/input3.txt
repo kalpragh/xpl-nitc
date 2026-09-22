@@ -1,0 +1,10 @@
+decl
+  int main();
+enddecl
+
+decl
+enddecl
+begin
+  write(missing(1,2));
+  return 0;
+end

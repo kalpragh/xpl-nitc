@@ -1,0 +1,35 @@
+decl
+  int add(int a, int b);
+  int square(int x);
+  int main();
+enddecl
+
+int add(int a, int b)
+{
+decl
+  int t;
+enddecl
+begin
+  t = a + b;
+  return t;
+end
+}
+
+int square(int x)
+{
+decl
+enddecl
+begin
+  write(x);
+  return x * x;
+end
+}
+
+decl
+  int result;
+enddecl
+begin
+  result = add(square(2), 5);
+  write(result);
+  return result;
+end
