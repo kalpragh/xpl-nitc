@@ -1,0 +1,26 @@
+decl
+    int calc(int a, int b, int c);
+    int main();
+enddecl
+
+int calc(int a, int b, int c)
+{
+    decl
+        int x;
+    enddecl
+
+    begin
+        x = a + b + c;
+        return x;
+    end
+}
+
+decl
+    int result;
+enddecl
+
+begin
+    result = calc(10, 20, 30);
+    write(result);
+    return 0;
+end

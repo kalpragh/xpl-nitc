@@ -1,0 +1,26 @@
+decl
+    int getValue();
+    int main();
+enddecl
+
+int getValue()
+{
+    decl
+        int x;
+    enddecl
+
+    begin
+        x = 42;
+        return x;
+    end
+}
+
+decl
+    int result;
+enddecl
+
+begin
+    result = getValue();
+    write(result);
+    return 0;
+end
