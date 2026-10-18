@@ -1,0 +1,26 @@
+decl
+    tuple pt (int x, int y) g;
+    int f();
+    int main();
+enddecl
+int f(){
+decl
+    tuple pt p, q;
+enddecl
+begin
+    p.x = 3;
+    p.y = 4;
+    q = p;
+    q.x = q.x + p.y;
+    write(q.x);
+    write(p.x);
+    return 0;
+end
+}
+decl
+    int d;
+enddecl
+begin
+    d = f();
+    return 0;
+end

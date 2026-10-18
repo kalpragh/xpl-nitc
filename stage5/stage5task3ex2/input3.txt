@@ -1,0 +1,21 @@
+decl
+    tuple pt (int x, int y) g, *gp;
+    int main();
+enddecl
+decl
+    tuple pt l, *lp;
+enddecl
+begin
+    g.x = 1;
+    g.y = 2;
+    gp = &g;
+    l = *gp;
+    l.x = 10;
+    lp = &l;
+    *gp = *lp;
+    write(g.x);
+    write(g.y);
+    lp.y = 5;
+    write(l.y);
+    return 0;
+end

@@ -1,0 +1,23 @@
+decl
+    tuple student (str name, int roll, str branch) a, b, *sp;
+    tuple faculty (str name, int id) x;
+    int main();
+enddecl
+decl
+enddecl
+begin
+    read(a.name);
+    a.roll = 7;
+    a.branch = "cse";
+    b = a;
+    write(b.name);
+    write(b.roll);
+    sp = &a;
+    sp.roll = 9;
+    write(a.roll);
+    read(x.name);
+    if (a.name == x.name) then
+        write("same");
+    endif;
+    return 0;
+end
