@@ -11,6 +11,7 @@ int loopDepth = 0;
 int label=0;
 int nextfree=0;
 int arrayErrorLabel=-1;
+extern int nextBinding;
 int codegen(struct tnode *t);
 struct Gsymbol *codegenFunc = NULL;   /* set by codegenFunction() below */
 int getlabel(){
@@ -26,7 +27,8 @@ void freereg(){
 }
 void writeHeader(){
     fprintf(fp, "0\n2056\n0\n0\n0\n0\n0\n1\n");
-    fprintf(fp, "MOV SP, 4122\n");
+    int sp = (nextBinding > 4096) ? nextBinding - 1 : 4096;
+    fprintf(fp, "MOV SP, %d\n", sp);
 }
 struct tnode *makeArgNode(struct tnode *expr){
     struct tnode *n = malloc(sizeof(struct tnode));
@@ -174,6 +176,10 @@ void writeArrayErrorHandler(){
     fprintf(fp, "PUSH R0\n");
     fprintf(fp, "CALL 0\n");
 }
+void codegenStmt(struct tnode *t){
+    codegen(t);
+    if(t != NULL && t->nodetype == NODE_CALL) freereg();
+}
 int exprIsPointer(struct tnode *e){
     if(e->nodetype == NODE_ADDR) return 1;
     if(e->nodetype == NODE_DEREF) return 0;
@@ -231,7 +237,7 @@ struct tnode* createtree(int val,int type, int nodetype, char* varname,struct tn
         temp->type=TYPE_BOOL; 
     }
     else if(nodetype=='='){
-        if(l->type!=r->type){
+        if(l->type!=r->type || exprIsPointer(l)!=exprIsPointer(r)){
             printf("Type mismatch in assignment\n");
             exit(1);
         }
@@ -388,10 +394,8 @@ int codegen(struct tnode *t){
         }
 
         case 'C': {
-            codegen(t->left);
-            if(t->left && t->left->nodetype == NODE_CALL) freereg();
-            codegen(t->right);
-            if(t->right && t->right->nodetype == NODE_CALL) freereg();
+            codegenStmt(t->left);
+            codegenStmt(t->right);
             return -1;
         }
 
@@ -477,7 +481,7 @@ int codegen(struct tnode *t){
             loopEndStack[loopDepth] = label2;
             loopDepth++;
 
-            codegen(t->middle);
+            codegenStmt(t->middle);
 
             loopDepth--;
 
@@ -492,7 +496,7 @@ int codegen(struct tnode *t){
                 int label=getlabel();
                 fprintf(fp,"JZ R%d, L%d\n",r,label);
                 freereg();
-                codegen(t->middle);
+                codegenStmt(t->middle);
                 fprintf(fp,"L%d:\n",label);
             }
             else{
@@ -502,11 +506,11 @@ int codegen(struct tnode *t){
                 fprintf(fp,"JZ R%d, L%d\n",r,elselabel);
                 freereg();
                 //then
-                codegen(t->middle);
+                codegenStmt(t->middle);
                 fprintf(fp,"JMP L%d\n",endlabel);
                 //else
                 fprintf(fp,"L%d:\n",elselabel);
-                codegen(t->right);
+                codegenStmt(t->right);
                 fprintf(fp,"L%d:\n",endlabel);
             }
             return -1;
@@ -566,9 +570,7 @@ int codegen(struct tnode *t){
             freereg();
         }
         else if(t->left->nodetype==NODE_DEREF){
-            int addr = getreg();
-            fprintf(fp, "MOV R%d, [%d]\n", addr, t->left->left->Gentry->binding);
-
+            int addr = codegen(t->left->left);   /* value of p = address to read into */
             fprintf(fp, "MOV R2, \"Read\"\n");
             fprintf(fp, "PUSH R2\n");
             fprintf(fp, "MOV R2, -1\n");
@@ -638,7 +640,7 @@ int codegen(struct tnode *t){
             loopEndStack[loopDepth]=endlabel;
             loopDepth++;
 
-            codegen(t->middle);
+            codegenStmt(t->middle);
 
             loopDepth--;
 
@@ -661,7 +663,7 @@ int codegen(struct tnode *t){
             loopEndStack[loopDepth]=endlabel;
             loopDepth++;
 
-            codegen(t->middle);
+            codegenStmt(t->middle);
 
             loopDepth--;
 
@@ -735,27 +737,28 @@ int codegen(struct tnode *t){
         }
 
         case NODE_RETURN: {
-            if(codegenFunc->numLocals > 0)
-                fprintf(fp, "SUB SP, %d\n", codegenFunc->numLocals);
             int r = codegen(t->left);
             if(strcmp(codegenFunc->name, "main") == 0){
                 fprintf(fp, "HALT\n");
             } else {
-                fprintf(fp, "MOV R%d, BP\n", getreg());  /* see note below */
-                fprintf(fp, "SUB R%d, 2\n", nextfree-1);
-                fprintf(fp, "MOV [R%d], R%d\n", nextfree-1, r);
-                freereg();
+                int ra = getreg();
+                fprintf(fp, "MOV R%d, BP\n", ra);
+                fprintf(fp, "SUB R%d, 2\n", ra);
+                fprintf(fp, "MOV [R%d], R%d\n", ra, r);
+                freereg(); freereg();
+                if(codegenFunc->numLocals > 0)
+                    fprintf(fp, "SUB SP, %d\n", codegenFunc->numLocals);
                 fprintf(fp, "POP BP\n");
                 fprintf(fp, "RET\n");
             }
             return -1;
         }
-
       }
 
      return -1;
     }
 void codegenFunction(struct Gsymbol *f){
+    nextfree = 0;
     codegenFunc = f;
     if(strcmp(f->name,"main") != 0){
         fprintf(fp, "F%d:\n", f->flabel);

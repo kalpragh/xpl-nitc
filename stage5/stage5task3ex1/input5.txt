@@ -1,26 +1,22 @@
 decl
-    int calc(int a, int b, int c);
-    int main();
+int *identity(int *p);
+int main();
 enddecl
 
-int calc(int a, int b, int c)
-{
-    decl
-        int x;
-    enddecl
-
-    begin
-        x = a + b + c;
-        return x;
-    end
+int *identity(int *p){
+decl
+enddecl
+begin
+return p;
+end
 }
 
 decl
-    int result;
+int a, *q;
 enddecl
-
 begin
-    result = calc(10, 20, 30);
-    write(result);
-    return 0;
+a = 7;
+q = identity(&a);
+write(*q);
+return 0;
 end

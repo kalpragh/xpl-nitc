@@ -16,7 +16,6 @@
 #define NODE_CALL 13
 #define NODE_ARG 14
 #define NODE_RETURN 15
-
 struct tnode *makeArgNode(struct tnode *expr);
 struct tnode *appendArg(struct tnode *list, struct tnode *p);
 
@@ -38,6 +37,7 @@ struct tnode {
     struct tnode *right;
 };
 
+void codegenStmt(struct tnode *t);
 struct tnode* createtree(int val,int type, int nodetype, char* varname,
                          struct tnode* l, struct tnode* m,struct tnode* r);
 

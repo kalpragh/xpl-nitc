@@ -1,26 +1,27 @@
 decl
-    int add(int a, int b);
-    int main();
+int bump(int *x);
+int main();
 enddecl
 
-int add(int a, int b)
-{
-    decl
-        int x;
-    enddecl
-
-    begin
-        x = a + b;
-        return x;
-    end
+int bump(int *x){
+decl
+enddecl
+begin
+*x = *x + 1;
+return 0;
+end
 }
 
 decl
-    int result;
+int i, a;
 enddecl
-
 begin
-    result = add(10, 20) + add(30, 40);
-    write(result);
-    return 0;
+a = 0;
+i = 0;
+while (i < 25) do
+bump(&a);
+i = i + 1;
+endwhile;
+write(a);
+return 0;
 end

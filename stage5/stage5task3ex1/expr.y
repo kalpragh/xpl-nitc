@@ -65,11 +65,19 @@ LDecl:
 LIdList:
     LIdList ',' ID
     {
-        LInstallVar($3->varname, currentType, 0,0);
+        LInstallVar($3->varname, currentType, 0, 0);
+    }
+  | LIdList ',' '*' ID
+    {
+        LInstallVar($4->varname, currentType, 1, 0);
     }
   | ID
     {
-        LInstallVar($1->varname, currentType, 0,0);
+        LInstallVar($1->varname, currentType, 0, 0);
+    }
+  | '*' ID
+    {
+        LInstallVar($2->varname, currentType, 1, 0);
     }
 ;
 GdeclBlock:
@@ -261,6 +269,10 @@ Body:
     {
         struct tnode *retnode = createtree(0, TYPE_NONE, NODE_RETURN, NULL, $4, NULL, NULL);
         $$ = createtree(0, TYPE_NONE, 'C', NULL, $2, NULL, retnode);
+    }
+  | START RETURN Expr ';' END
+    {
+        $$ = createtree(0, TYPE_NONE, NODE_RETURN, NULL, $3, NULL, NULL);
     }
 ;
 ParamList:
@@ -723,6 +735,12 @@ int main(int argc, char *argv[]){
 
     yyparse();
 
+    for(struct Gsymbol *g = Ghead; g != NULL; g = g->next){
+        if(g->isFunction && !g->isDefined){
+            printf("Error: function %s declared but not defined\n", g->name);
+            return 1;
+        }
+    }
     struct Gsymbol *mainFn = Lookup("main");
 
     if(mainFn == NULL){

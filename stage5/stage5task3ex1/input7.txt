@@ -1,0 +1,20 @@
+decl
+    int x;
+    int rd(int *p);
+    int main();
+enddecl
+int rd(int *p) {
+    decl enddecl
+    begin
+        read(*p);
+        return 0;
+    end
+}
+decl
+    int d;
+enddecl
+begin
+    d = rd(&x);
+    write(x);
+    return 0;
+end
