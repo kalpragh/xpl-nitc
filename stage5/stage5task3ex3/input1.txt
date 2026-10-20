@@ -1,0 +1,36 @@
+decl
+    tuple pt (int x, int y) g;
+    int byval(tuple pt a, int k);
+    int byptr(tuple pt *p, int k);
+    int main();
+enddecl
+int byval(tuple pt a, int k){
+decl
+enddecl
+begin
+    a.x = a.x + k;
+    write(a.x);
+    write(a.y);
+    return 0;
+end
+}
+int byptr(tuple pt *p, int k){
+decl
+enddecl
+begin
+    p.y = p.y + k;
+    return 0;
+end
+}
+decl
+    int d;
+enddecl
+begin
+    g.x = 1;
+    g.y = 2;
+    d = byval(g, 10);
+    write(g.x);
+    d = byptr(&g, 5);
+    write(g.y);
+    return 0;
+end

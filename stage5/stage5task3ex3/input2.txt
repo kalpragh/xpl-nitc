@@ -1,0 +1,26 @@
+decl
+    tuple pt (int x, int y) g, h;
+    tuple pt mk(int a, int b);
+    int main();
+enddecl
+tuple pt mk(int a, int b){
+decl
+    tuple pt t;
+enddecl
+begin
+    t.x = a;
+    t.y = b;
+    return t;
+end
+}
+decl
+enddecl
+begin
+    g = mk(3, 4);
+    write(g.x);
+    write(g.y);
+    h = g;
+    h.x = 9;
+    write(g.x);
+    return 0;
+end

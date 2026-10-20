@@ -1,0 +1,31 @@
+decl
+    tuple pt (int x, int y) a, b;
+    tuple pt *pick(tuple pt *p, tuple pt *q);
+    int main();
+enddecl
+tuple pt *pick(tuple pt *p, tuple pt *q){
+decl
+    tuple pt *r;
+enddecl
+begin
+    r = q;
+    if (p.x > q.x) then
+        r = p;
+    endif;
+    return r;
+end
+}
+decl
+    tuple pt *s;
+enddecl
+begin
+    a.x = 5;
+    a.y = 1;
+    b.x = 8;
+    b.y = 2;
+    s = pick(&a, &b);
+    s.y = 99;
+    write(b.y);
+    write(a.y);
+    return 0;
+end
