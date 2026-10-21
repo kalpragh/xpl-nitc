@@ -1,0 +1,22 @@
+type
+linkedList {
+    int data;
+    linkedList next;
+}
+endtype
+decl
+    linkedList head;
+    int main();
+enddecl
+int main(){
+    decl
+        int x;
+    enddecl
+    begin
+        head = alloc();
+        head.data = 7;
+        x = head.data;
+        write(x);
+        return 0;
+    end
+}
