@@ -1,0 +1,36 @@
+type
+List
+{
+    int data;
+    List next;
+}
+endtype
+decl
+    List arr[3];
+enddecl
+int main()
+{
+    decl
+        int i, x;
+        List p;
+    enddecl
+    begin
+        x = initialize();
+        i = 0;
+        while (i < 3) do
+            arr[i] = alloc();
+            arr[i].data = i * 10;
+            arr[i].next = null;
+            i = i + 1;
+        endwhile;
+        arr[0].next = arr[1];
+        arr[1].next = arr[2];
+        p = arr[0];
+        while (p != null) do
+            write(p.data);
+            p = p.next;
+        endwhile;
+        free(arr[2]);
+        return 1;
+    end
+}

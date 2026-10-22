@@ -1,0 +1,45 @@
+type
+Cell
+{
+    int key;
+    Cell next;
+}
+endtype
+decl
+    Cell bucket[3];
+enddecl
+int main()
+{
+    decl
+        int i, x, k;
+        Cell p;
+    enddecl
+    begin
+        x = initialize();
+        i = 0;
+        while (i < 3) do
+            bucket[i] = null;
+            i = i + 1;
+        endwhile;
+        x = 1;
+        while (x <= 7) do
+            k = x - (x / 3) * 3;
+            p = alloc();
+            p.key = x;
+            p.next = bucket[k];
+            bucket[k] = p;
+            x = x + 1;
+        endwhile;
+        i = 0;
+        while (i < 3) do
+            write(i);
+            p = bucket[i];
+            while (p != null) do
+                write(p.key);
+                p = p.next;
+            endwhile;
+            i = i + 1;
+        endwhile;
+        return 1;
+    end
+}
