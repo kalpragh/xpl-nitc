@@ -1,0 +1,29 @@
+type
+  Node { int val; Node next; }
+endtype
+decl
+  Node a, b, c;
+enddecl
+int main() {
+  decl
+    int r;
+  enddecl
+  begin
+    r = initialize();
+    a = alloc();
+    b = alloc();
+    a.val = 1;
+    b.val = 2;
+    write(a.val);
+    write(b.val);
+    r = free(a);
+    write(r);
+    c = alloc();
+    c.val = 3;
+    write(c.val);
+    write(b.val);
+    if (c == a) then write(1); else write(0); endif;
+    if (a == b) then write(1); else write(0); endif;
+    return 1;
+  end
+}

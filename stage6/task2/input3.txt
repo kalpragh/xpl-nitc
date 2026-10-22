@@ -1,0 +1,58 @@
+type
+  bst { int a; bst left; bst right; }
+endtype
+decl
+  bst insert(bst h, int key);
+  int inOrder(bst h);
+enddecl
+bst insert(bst h, int key) {
+  decl
+    bst t;
+  enddecl
+  begin
+    if (h == null) then
+      t = alloc();
+      t.a = key;
+      t.left = null;
+      t.right = null;
+      h = t;
+    else
+      if (key < h.a) then
+        h.left = insert(h.left, key);
+      else
+        h.right = insert(h.right, key);
+      endif;
+    endif;
+    return h;
+  end
+}
+int inOrder(bst h) {
+  decl
+    int x;
+  enddecl
+  begin
+    if (h != null) then
+      x = inOrder(h.left);
+      write(h.a);
+      x = inOrder(h.right);
+    endif;
+    return 1;
+  end
+}
+int main() {
+  decl
+    int x, n;
+    bst root;
+  enddecl
+  begin
+    x = initialize();
+    root = null;
+    read(n);
+    while (n != 0) do
+      root = insert(root, n);
+      read(n);
+    endwhile;
+    x = inOrder(root);
+    return 1;
+  end
+}

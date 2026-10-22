@@ -1,0 +1,26 @@
+type
+  Inner { int v; int w; }
+  Outer { int id; Inner part; }
+endtype
+decl
+  Outer o;
+enddecl
+int main() {
+  decl
+    int x;
+  enddecl
+  begin
+    x = initialize();
+    o = alloc();
+    o.part = alloc();
+    o.id = 7;
+    o.part.v = 11;
+    o.part.w = 22;
+    write(o.id);
+    write(o.part.v);
+    write(o.part.w);
+    read(o.part.v);
+    write(o.part.v);
+    return 1;
+  end
+}
