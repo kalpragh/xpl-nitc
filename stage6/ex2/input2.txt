@@ -1,0 +1,38 @@
+type
+Node
+{
+    int val;
+    Node next;
+}
+endtype
+decl
+    Node arr[3];
+enddecl
+int main()
+{
+    decl
+        int i, x, sum, max;
+    enddecl
+    begin
+        x = initialize();
+        i = 0;
+        sum = 0;
+        while (i < 3) do
+            arr[i] = alloc();
+            read(arr[i].val);
+            sum = sum + arr[i].val;
+            i = i + 1;
+        endwhile;
+        max = arr[0].val;
+        i = 1;
+        while (i < 3) do
+            if (arr[i].val > max) then
+                max = arr[i].val;
+            endif;
+            i = i + 1;
+        endwhile;
+        write(sum);
+        write(max);
+        return 1;
+    end
+}

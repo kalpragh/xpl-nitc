@@ -1,0 +1,40 @@
+type
+List
+{
+    int data;
+    List next;
+}
+endtype
+decl
+    List head;
+enddecl
+int main()
+{
+    decl
+        int x;
+        List p, q;
+    enddecl
+    begin
+        x = initialize();
+        head = null;
+        p = alloc();
+        p.data = 10;
+        p.next = null;
+        head = p;
+        q = alloc();
+        q.data = 20;
+        q.next = null;
+        p.next = q;
+        p = head;
+        while (p != null) do
+            write(p.data);
+            p = p.next;
+        endwhile;
+        if (head.next == null) then
+            write(0);
+        else
+            write(head.next.data);
+        endif;
+        return 1;
+    end
+}

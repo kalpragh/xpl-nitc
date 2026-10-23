@@ -1,0 +1,50 @@
+type
+Point
+{
+    int x;
+    int y;
+}
+endtype
+decl
+    Point pts[3];
+    int total(Point p);
+enddecl
+int total(Point p)
+{
+    decl
+    enddecl
+    begin
+        return p.x + p.y;
+    end
+}
+int main()
+{
+    decl
+        int i, x, s;
+    enddecl
+    begin
+        x = initialize();
+        i = 0;
+        while (i < 3) do
+            pts[i] = alloc();
+            pts[i].x = i + 1;
+            pts[i].y = (i + 1) * 10;
+            i = i + 1;
+        endwhile;
+        i = 0;
+        s = 0;
+        while (i < 3) do
+            s = s + total(pts[i]);
+            i = i + 1;
+        endwhile;
+        write(s);
+        free(pts[1]);
+        pts[1] = null;
+        if (pts[1] == null) then
+            write(0);
+        else
+            write(1);
+        endif;
+        return 1;
+    end
+}
