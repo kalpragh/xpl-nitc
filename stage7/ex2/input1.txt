@@ -1,0 +1,85 @@
+class
+  Cnt {
+    decl
+      int n;
+      int init(int s);
+      int inc();
+      int get();
+    enddecl
+    int init(int s){ decl enddecl begin self.n = s; return s; end }
+    int inc(){ decl enddecl begin self.n = self.n + 1; return self.n; end }
+    int get(){ decl enddecl begin return self.n; end }
+  }
+endclass
+decl
+  int count(int k);
+  int nilcheck(int k);
+  int depth(int k);
+  int alias(int k);
+enddecl
+int count(int k){
+  decl Cnt c; int i; int t; int r; enddecl
+  begin
+    c = new(Cnt);
+    t = c.init(0);
+    i = 0;
+    while (i < k) do
+      t = c.inc();
+      i = i + 1;
+    endwhile;
+    r = c.get();
+    delete(c);
+    return r;
+  end
+}
+int nilcheck(int k){
+  decl Cnt c; int r; enddecl
+  begin
+    if (c == NULL) then r = 1; else r = 0; endif;
+    return r;
+  end
+}
+int depth(int k){
+  decl Cnt c; int t; int r; enddecl
+  begin
+    c = new(Cnt);
+    t = c.init(k);
+    if (k > 0) then
+      r = depth(k - 1) + c.get();
+    else
+      r = c.get();
+    endif;
+    delete(c);
+    return r;
+  end
+}
+int alias(int k){
+  decl Cnt a; Cnt b; int t; int r; enddecl
+  begin
+    a = new(Cnt);
+    b = a;
+    t = a.init(k);
+    t = b.inc();
+    r = a.get();
+    delete(a);
+    return r;
+  end
+}
+int main(){
+  decl int i; int s; enddecl
+  begin
+    initialize();
+    write(count(5));
+    write(nilcheck(0));
+    write(depth(3));
+    write(alias(4));
+    s = 0;
+    i = 1;
+    while (i <= 200) do
+      s = s + count(2);
+      i = i + 1;
+    endwhile;
+    write(s);
+    return 0;
+  end
+}

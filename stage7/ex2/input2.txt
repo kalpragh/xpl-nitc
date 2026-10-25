@@ -1,0 +1,83 @@
+class
+  Node {
+    decl
+      int val;
+      Node next;
+      int init(int v);
+      int append(int v);
+      int sum();
+      int length();
+      int print();
+    enddecl
+    int init(int v){
+      decl enddecl
+      begin
+        self.val = v;
+        self.next = NULL;
+        return 1;
+      end
+    }
+    int append(int v){
+      decl int t; enddecl
+      begin
+        if (self.next == NULL) then
+          self.next = new(Node);
+          t = self.next.init(v);
+        else
+          t = self.next.append(v);
+        endif;
+        return 1;
+      end
+    }
+    int sum(){
+      decl int r; enddecl
+      begin
+        r = self.val;
+        if (self.next != NULL) then
+          r = r + self.next.sum();
+        endif;
+        return r;
+      end
+    }
+    int length(){
+      decl int r; enddecl
+      begin
+        r = 0;
+        if (self.next != NULL) then
+          r = 1 + self.next.length();
+        endif;
+        return r;
+      end
+    }
+    int print(){
+      decl int t; enddecl
+      begin
+        write(self.val);
+        if (self.next != NULL) then
+          t = self.next.print();
+        endif;
+        return 1;
+      end
+    }
+  }
+endclass
+decl Node head; enddecl
+int main(){
+  decl int n; int i; int x; int t; enddecl
+  begin
+    initialize();
+    head = new(Node);
+    t = head.init(0);
+    read(n);
+    i = 1;
+    while (i <= n) do
+      read(x);
+      t = head.append(x);
+      i = i + 1;
+    endwhile;
+    t = head.print();
+    write(head.sum());
+    write(head.length());
+    return 0;
+  end
+}
