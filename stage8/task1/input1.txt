@@ -1,0 +1,56 @@
+class
+A {
+    decl
+        int x;
+        int get();
+        int twice();
+    enddecl
+    int get() {
+        decl enddecl
+        begin
+            return self.x;
+        end
+    }
+    int twice() {
+        decl enddecl
+        begin
+            return self.x * 2;
+        end
+    }
+}
+B extends A {
+    decl
+        int y;
+        int twice();
+        int extra();
+    enddecl
+    int twice() {
+        decl enddecl
+        begin
+            return self.x * 3;
+        end
+    }
+    int extra() {
+        decl enddecl
+        begin
+            return self.y;
+        end
+    }
+}
+endclass
+decl
+    A a;
+    B b;
+enddecl
+int main() {
+    decl
+        int r;
+    enddecl
+    begin
+        a = new(B);
+        b = new(B);
+        r = a.get();
+        r = a.twice();
+        return 0;
+    end
+}
