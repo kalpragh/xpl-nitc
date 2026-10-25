@@ -1,0 +1,36 @@
+class
+  Acc {
+    decl
+      int v;
+      int set(int x);
+      int add(int x);
+      int get();
+      int fact(int n);
+    enddecl
+    int set(int x){ decl enddecl begin self.v = x; return x; end }
+    int add(int x){ decl enddecl begin self.v = self.v + x; return self.v; end }
+    int get(){ decl enddecl begin return self.v; end }
+    int fact(int n){
+      decl int r; enddecl
+      begin
+        if (n <= 1) then r = 1; else r = n * self.fact(n - 1); endif;
+        return r;
+      end
+    }
+  }
+endclass
+decl Acc a; Acc b; enddecl
+int main(){
+  decl int t; enddecl
+  begin
+    initialize();
+    a = new(Acc); b = new(Acc);
+    t = a.set(10); t = b.set(20);
+    write(a.add(1) + b.add(2));
+    write(a.add(b.get()));
+    write(a.fact(5));
+    write(a.get());
+    write(b.get());
+    return 0;
+  end
+}

@@ -1,0 +1,39 @@
+class
+  Pt {
+    decl
+      int x; int y;
+      int set(int a, int b);
+      int diff();
+      int sum();
+    enddecl
+    int set(int a, int b){ decl enddecl begin self.x = a; self.y = b; return 1; end }
+    int diff(){ decl enddecl begin return self.x - self.y; end }
+    int sum(){ decl int t; enddecl begin t = self.diff(); return self.x + self.y + t; end }
+  }
+  Box {
+    decl
+      Pt p;
+      int init(int a, int b);
+      int show();
+    enddecl
+    int init(int a, int b){ decl int t; enddecl begin self.p = new(Pt); t = self.p.set(a, b); return 1; end }
+    int show(){ decl enddecl begin return self.p.diff(); end }
+  }
+endclass
+decl Pt a; Pt b; Box bx; enddecl
+int main(){
+  decl int t; enddecl
+  begin
+    initialize();
+    a = new(Pt); b = new(Pt);
+    t = a.set(7, 3);
+    t = b.set(1, 2);
+    write(a.diff());
+    write(b.diff());
+    write(a.sum());
+    bx = new(Box);
+    t = bx.init(10, 4);
+    write(bx.show());
+    return 0;
+  end
+}
