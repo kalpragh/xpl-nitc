@@ -1,0 +1,26 @@
+class
+  Counter {
+    decl
+      int count; int step;
+      int init(int s);
+      int inc();
+      int get();
+    enddecl
+    int init(int s){ decl enddecl begin self.count = 0; self.step = s; return 1; end }
+    int inc(){ decl enddecl begin self.count = self.count + self.step; return self.count; end }
+    int get(){ decl enddecl begin return self.count; end }
+  }
+endclass
+decl Counter c; enddecl
+int main(){
+  decl int t; enddecl
+  begin
+    initialize();
+    c = new(Counter);
+    t = c.init(5);
+    t = c.inc();
+    write(c.get());
+    delete(c);
+    return 0;
+  end
+}

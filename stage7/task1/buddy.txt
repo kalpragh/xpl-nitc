@@ -1,0 +1,59 @@
+type
+Small
+{
+    int x;
+    int y;
+}
+Big
+{
+    int f1;
+    int f2;
+    int f3;
+    int f4;
+    int f5;
+    int f6;
+    int f7;
+    int f8;
+}
+endtype
+decl
+    Small s[120];
+    Big b[120];
+enddecl
+int main()
+{
+    decl
+        int i, n, x;
+    enddecl
+    begin
+        x = initialize();
+        i = 0;
+        n = 0;
+        while (i < 120) do
+            s[i] = alloc();
+            if (s[i] != null) then
+                n = n + 1;
+            endif;
+            i = i + 1;
+        endwhile;
+        write(n);
+        i = 0;
+        while (i < 120) do
+            if (s[i] != null) then
+                free(s[i]);
+            endif;
+            i = i + 1;
+        endwhile;
+        i = 0;
+        n = 0;
+        while (i < 120) do
+            b[i] = alloc();
+            if (b[i] != null) then
+                n = n + 1;
+            endif;
+            i = i + 1;
+        endwhile;
+        write(n);
+        return 1;
+    end
+}
