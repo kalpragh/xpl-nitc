@@ -1,0 +1,43 @@
+class
+  Pt {
+    decl
+      int x;
+      int set(int a);
+      int get();
+    enddecl
+    int set(int a){ decl enddecl begin self.x = a; return a; end }
+    int get(){ decl enddecl begin return self.x; end }
+  }
+endclass
+decl
+  Pt a;
+  int bump(Pt p, int d);
+  int isnil(Pt p);
+enddecl
+int bump(Pt p, int d){
+  decl int t; enddecl
+  begin
+    t = p.set(p.get() + d);
+    return p.get();
+  end
+}
+int isnil(Pt p){
+  decl int r; enddecl
+  begin
+    if (p == NULL) then r = 1; else r = 0; endif;
+    return r;
+  end
+}
+int main(){
+  decl int t; enddecl
+  begin
+    initialize();
+    a = new(Pt);
+    t = a.set(5);
+    write(bump(a, 3));
+    write(a.get());
+    write(isnil(a));
+    write(isnil(NULL));
+    return 0;
+  end
+}
