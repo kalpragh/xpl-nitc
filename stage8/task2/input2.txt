@@ -1,0 +1,96 @@
+class
+Animal {
+    decl
+        int legs;
+        int init(int n);
+        int sound();
+        int describe();
+    enddecl
+    int init(int n) {
+        decl enddecl
+        begin
+            self.legs = n;
+            return 0;
+        end
+    }
+    int sound() {
+        decl enddecl
+        begin
+            return 0;
+        end
+    }
+    int describe() {
+        decl enddecl
+        begin
+            return self.sound() * 10 + self.legs;
+        end
+    }
+}
+Dog extends Animal {
+    decl
+        int sound();
+    enddecl
+    int sound() {
+        decl enddecl
+        begin
+            return 1;
+        end
+    }
+}
+Bird extends Animal {
+    decl
+        int sound();
+        int wings();
+    enddecl
+    int sound() {
+        decl enddecl
+        begin
+            return 2;
+        end
+    }
+    int wings() {
+        decl enddecl
+        begin
+            return 2;
+        end
+    }
+}
+endclass
+decl
+    Animal a;
+    Dog d;
+    Bird b;
+    int show(Animal p);
+enddecl
+int show(Animal p) {
+    decl
+        int r;
+    enddecl
+    begin
+        r = p.describe();
+        write(r);
+        return r;
+    end
+}
+int main() {
+    decl
+        int t;
+        Animal q;
+    enddecl
+    begin
+        initialize();
+        d = new(Dog);
+        b = new(Bird);
+        a = new(Animal);
+        t = d.init(4);
+        t = b.init(2);
+        t = a.init(3);
+        t = show(a);
+        t = show(d);
+        t = show(b);
+        q = new(Bird);
+        t = q.init(6);
+        t = show(q);
+        return 0;
+    end
+}

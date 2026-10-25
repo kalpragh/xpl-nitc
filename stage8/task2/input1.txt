@@ -1,0 +1,88 @@
+class
+A {
+    decl
+        int x;
+        int set(int v);
+        int who();
+        int callWho();
+    enddecl
+    int set(int v) {
+        decl enddecl
+        begin
+            self.x = v;
+            return 0;
+        end
+    }
+    int who() {
+        decl enddecl
+        begin
+            return 1;
+        end
+    }
+    int callWho() {
+        decl enddecl
+        begin
+            return self.who() + self.x;
+        end
+    }
+}
+B extends A {
+    decl
+        int who();
+    enddecl
+    int who() {
+        decl enddecl
+        begin
+            return 2;
+        end
+    }
+}
+C extends B {
+    decl
+        int who();
+    enddecl
+    int who() {
+        decl enddecl
+        begin
+            return 3;
+        end
+    }
+}
+endclass
+decl
+    A a;
+    B b;
+    C c;
+enddecl
+int main() {
+    decl
+        int n, r;
+    enddecl
+    begin
+        initialize();
+        read(n);
+        if (n == 1) then
+            a = new(A);
+        else
+            if (n == 2) then
+                a = new(B);
+            else
+                a = new(C);
+            endif;
+        endif;
+        r = a.set(10);
+        r = a.who();
+        write(r);
+        r = a.callWho();
+        write(r);
+        b = new(B);
+        a = b;
+        r = a.who();
+        write(r);
+        c = new(C);
+        a = c;
+        r = a.who();
+        write(r);
+        return 0;
+    end
+}
