@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 %}
-
+%option yylineno
 %%
 
 [0-9]+ {
@@ -67,7 +67,7 @@
 "new"       { return NEW; }
 "delete"    { return DELETE; }
 "self"      { return SELF; }
-[a-zA-Z][a-zA-Z0-9]* {
+[a-zA-Z_][a-zA-Z0-9_]* {
     yylval.node = calloc(1, sizeof(struct tnode));
     yylval.node->nodetype = 'V';
     yylval.node->varname = strdup(yytext);

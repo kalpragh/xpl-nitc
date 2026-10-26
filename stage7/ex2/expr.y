@@ -18,6 +18,7 @@ struct Typetable *currentType;
 struct Gsymbol *currentFunction = NULL;
 struct TupleType *currentTuple = NULL;
 extern struct Gsymbol *Ghead;
+extern int yylineno;
 void printtree(struct tnode *t);
 void noClassType(const char *what){
     if(isClassType(currentType)){ printf("Error: %s of class type are not supported\n", what); exit(1); }
@@ -979,7 +980,7 @@ void printtree(struct tnode *t){
     treeDepth--;
 }
 int yyerror(char *s){
-    printf("Error: %s\n", s);
+    printf("Error: %s at line %d\n", s, yylineno);
     return 1;
 }
 int main(int argc, char *argv[]){

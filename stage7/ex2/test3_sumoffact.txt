@@ -1,0 +1,73 @@
+class
+    Fact{
+        decl
+            int f(int n);
+        enddecl
+        int f(int n){
+            decl
+                int r;
+            enddecl
+            begin
+                if (n <= 1) then
+                    r = 1;
+                else
+                    r = n * self.f(n - 1);
+                endif;
+                return r;
+            end
+        }
+    }
+    SumFact{
+        decl
+            Fact fobj;
+            int init();
+            int dec(int n);
+            int sum(int n);
+        enddecl
+        int init(){
+            decl
+            enddecl
+            begin
+                self.fobj = new(Fact);
+                return 1;
+            end
+        }
+        int dec(int n){
+            decl
+            enddecl
+            begin
+                return n - 1;
+            end
+        }
+        int sum(int n){
+            decl
+                int r;
+            enddecl
+            begin
+                if (n <= 0) then
+                    r = 0;
+                else
+                    r = self.fobj.f(n) + self.sum(self.dec(n));
+                endif;
+                return r;
+            end
+        }
+    }
+endclass
+decl
+    SumFact s;
+enddecl
+int main(){
+    decl
+        int n, x, r;
+    enddecl
+    begin
+        x = initialize();
+        s = new(SumFact);
+        x = s.init();
+        read(n);
+        r = s.sum(n);
+        write(r);
+        return 0;
+    end
+}
