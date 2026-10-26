@@ -1,0 +1,77 @@
+class
+Shape {
+    decl
+        int size;
+        int setSize(int s);
+        int area(int k);
+    enddecl
+    int setSize(int s) {
+        decl enddecl
+        begin
+            self.size = s;
+            return 0;
+        end
+    }
+    int area(int k) {
+        decl enddecl
+        begin
+            return self.size * k;
+        end
+    }
+}
+Square extends Shape {
+    decl
+        int area(int k);
+        int area(str s);
+        int area(int a, int b);
+    enddecl
+    int area(int k) {
+        decl enddecl
+        begin
+            return self.size * self.size * k;
+        end
+    }
+    int area(str s) {
+        decl enddecl
+        begin
+            return 7;
+        end
+    }
+    int area(int a, int b) {
+        decl enddecl
+        begin
+            return self.size + a + b;
+        end
+    }
+}
+endclass
+decl
+    Shape sh;
+    Shape s2;
+    Square sq;
+enddecl
+int main() {
+    decl
+        int t, r;
+    enddecl
+    begin
+        initialize();
+        sh = new(Square);
+        sq = new(Square);
+        s2 = new(Shape);
+        t = sh.setSize(3);
+        t = sq.setSize(3);
+        t = s2.setSize(3);
+        r = sh.area(2);
+        write(r);
+        r = sq.area(2);
+        write(r);
+        r = sq.area("x");
+        write(r);
+        r = sq.area(1, 2);
+        write(r);
+        r = s2.area(2);
+        write(r);
+        return 0;
+    end
+}

@@ -1,0 +1,78 @@
+class
+Person {
+    decl
+        str name;
+        int age;
+        int init(str n, int a);
+        int display();
+    enddecl
+    int init(str n, int a) {
+        decl enddecl
+        begin
+            self.name = n;
+            self.age = a;
+            return 0;
+        end
+    }
+    int display() {
+        decl enddecl
+        begin
+            write(self.name);
+            write(self.age);
+            return 0;
+        end
+    }
+}
+Student extends Person {
+    decl
+        int rollno;
+        str dept;
+        int initStudent(str n, int a, int r, str d);
+        int display();
+    enddecl
+    int initStudent(str n, int a, int r, str d) {
+        decl
+            int t;
+        enddecl
+        begin
+            t = self.init(n, a);
+            self.rollno = r;
+            self.dept = d;
+            return 0;
+        end
+    }
+    int display() {
+        decl enddecl
+        begin
+            write(self.name);
+            write(self.age);
+            write(self.rollno);
+            write(self.dept);
+            return 0;
+        end
+    }
+}
+endclass
+decl
+    Person p;
+    Student s;
+enddecl
+int main() {
+    decl
+        int n, t;
+    enddecl
+    begin
+        initialize();
+        read(n);
+        if (n > 0) then
+            p = new(Person);
+            t = p.init("Rogers", 37);
+        else
+            s = new(Student);
+            t = s.initStudent("Mathew", 35, 999, "CS");
+            p = s;
+        endif;
+        t = p.display();
+        return 0;
+    end
+}
