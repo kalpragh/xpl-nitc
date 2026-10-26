@@ -63,13 +63,15 @@ Fieldlist *FInstall(Typetable *t, const char *fname, Typetable *ftype) {
         tt_error("field '%s' of type '%s' has an invalid type", fname, t->name);
     if (FLookup(t, fname))
         tt_error("duplicate field '%s' in type '%s'", fname, t->name);
-    if (t->size >= MAX_FIELDS)
+        int w = (ftype != NULL && ftype->isClass) ? 2 : 1;
+    if (t->size + w > MAX_FIELDS)
         tt_error("too many member fields in type '%s'", t->name);
 
     Fieldlist *f = calloc(1, sizeof *f);
     f->name = strdup(fname);
     f->type = ftype;
-    f->fieldIndex = t->size++;
+    f->fieldIndex = t->size;
+    t->size += w;
 
     Fieldlist **p = &t->fields;          /* append, keeping declaration order */
     while (*p) p = &(*p)->next;
