@@ -1,0 +1,80 @@
+--- original/classtable.c
++++ solution/classtable.c
+@@ -83,7 +83,7 @@
+     FInstall(c->type, name, ftype);
+ }
+ 
+-void Class_Minstall(struct Classtable *c, char *name, struct Typetable *rtype, struct Paramstruct *params){
++void Class_Minstall(struct Classtable *c, char *name, struct Typetable *rtype, struct Paramstruct *params, int isFinal){
+     if(Class_Flookup(c, name)){
+         printf("Error: %s is already declared in class %s\n", name, c->name);
+         exit(1);
+@@ -97,6 +97,10 @@
+         printf("Error: method %s with these parameters is already declared in class %s\n", name, c->name);
+         exit(1);
+     }
++    if(old != NULL && old->isFinal){
++        printf("Error: method %s is final in a parent class of %s and cannot be overridden\n", name, c->name);
++        exit(1);
++    }
+     if(old != NULL && old->type != rtype){
+         printf("Error: method %s in class %s has the same parameters as in its parent class but a different return type\n", name, c->name);
+         exit(1);
+@@ -128,6 +132,7 @@
+     m->funcposition = c->methodCount++;
+     m->flabel = g->flabel;
+     m->func = g;
++    m->isFinal = isFinal;
+     struct Memberfunclist **pp = &c->vfunc;
+     while(*pp) pp = &(*pp)->next;
+     *pp = m;
+--- original/classtable.h
++++ solution/classtable.h
+@@ -10,6 +10,7 @@
+     struct Paramstruct *paramlist;
+     int funcposition;
+     int flabel;
++    int isFinal;
+     struct Gsymbol *func;            /* hidden "Class.method" entry */
+     struct Memberfunclist *next;
+ };
+@@ -29,7 +30,7 @@
+ struct Classtable *CInstall(char *name, char *parent);
+ struct Classtable *CLookup(char *name);
+ void Class_Finstall(struct Classtable *c, struct Typetable *ftype, char *name);
+-void Class_Minstall(struct Classtable *c, char *name, struct Typetable *rtype, struct Paramstruct *params);
++void Class_Minstall(struct Classtable *c, char *name, struct Typetable *rtype, struct Paramstruct *params, int isFinal);
+ struct Memberfunclist *Class_Mlookup(struct Classtable *c, char *name);
+ Fieldlist *Class_Flookup(struct Classtable *c, char *name);
+ int classAssignable(struct Typetable *lhs, struct Typetable *rhs);
+--- original/expr.l
++++ solution/expr.l
+@@ -67,6 +67,7 @@
+ "new"       { return NEW; }
+ "delete"    { return DELETE; }
+ "self"      { return SELF; }
++"final"     { return FINAL; }
+ [a-zA-Z][a-zA-Z0-9]* {
+     yylval.node = calloc(1, sizeof(struct tnode));
+     yylval.node->nodetype = 'V';
+--- original/expr.y
++++ solution/expr.y
+@@ -99,7 +99,7 @@
+ %token RETURN
+ %token TUPLE
+ %token TYPE ENDTYPE NULLT ALLOC FREE INITIALIZE
+-%token CLASS ENDCLASS EXTENDS NEW DELETE SELF
++%token CLASS ENDCLASS EXTENDS NEW DELETE SELF FINAL
+ %type <node> MethodCall
+ %token <node> STRING
+ %type <field> FieldList Field
+@@ -136,7 +136,8 @@
+ ;
+ CMember:
+     type ID ';'                        { Class_Finstall(currentClass, $1, $2->varname); }
+-  | type ID '(' ParamList ')' ';'      { Class_Minstall(currentClass, $2->varname, $1, $4); }
++  | FINAL type ID '(' ParamList ')' ';' { Class_Minstall(currentClass, $3->varname, $2, $5, 1); }
++  | type ID '(' ParamList ')' ';'      { Class_Minstall(currentClass, $2->varname, $1, $4, 0); }
+ ;
+ MDefList: 
+     | MDefList MDef 

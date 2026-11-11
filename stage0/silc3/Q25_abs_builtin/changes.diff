@@ -1,0 +1,79 @@
+--- original/expr.l
++++ solution/expr.l
+@@ -67,6 +67,7 @@
+ "new"       { return NEW; }
+ "delete"    { return DELETE; }
+ "self"      { return SELF; }
++"abs"       { return ABS; }
+ [a-zA-Z][a-zA-Z0-9]* {
+     yylval.node = calloc(1, sizeof(struct tnode));
+     yylval.node->nodetype = 'V';
+--- original/expr.y
++++ solution/expr.y
+@@ -99,7 +99,7 @@
+ %token RETURN
+ %token TUPLE
+ %token TYPE ENDTYPE NULLT ALLOC FREE INITIALIZE
+-%token CLASS ENDCLASS EXTENDS NEW DELETE SELF
++%token CLASS ENDCLASS EXTENDS NEW DELETE SELF ABS
+ %type <node> MethodCall
+ %token <node> STRING
+ %type <field> FieldList Field
+@@ -745,6 +745,7 @@
+   }
+   | FieldRef             { $$ = $1; }
+   | MethodCall           { $$ = $1; }
++  | ABS '(' Expr ')'   { $$ = makeAbsNode($3); }
+   | NULLT                { $$ = makeNullNode(); }
+   | FREE '(' UVar ')'    { $$ = makeFreeNode($3); }
+   | INITIALIZE '(' ')'   { $$ = makeInitNode(); }
+--- original/tnode.c
++++ solution/tnode.c
+@@ -1093,6 +1093,23 @@
+             for(int i = saved - 1; i >= 0; i--) fprintf(fp, "POP R%d\n", i);
+             return result;
+         }
++        case NODE_ABS: {
++            int r1 = codegen(t->left);
++            int r2 = getreg();
++            int r3 = getreg();
++            int lend = getlabel();
++            fprintf(fp, "MOV R%d, R%d\n", r2, r1);
++            fprintf(fp, "MOV R%d, 0\n", r3);
++            fprintf(fp, "LT R%d, R%d\n", r2, r3);
++            fprintf(fp, "JZ R%d, L%d\n", r2, lend);
++            fprintf(fp, "MOV R%d, 0\n", r2);
++            fprintf(fp, "SUB R%d, R%d\n", r2, r1);
++            fprintf(fp, "MOV R%d, R%d\n", r1, r2);
++            fprintf(fp, "L%d:\n", lend);
++            freereg();
++            freereg();
++            return r1;
++        }
+         case NODE_RETURN: {
+             if(strcmp(codegenFunc->name, "main") == 0){
+                 codegen(t->left);
+@@ -1290,6 +1307,12 @@
+     n->val = m->funcposition;
+     return n;
+ }
++struct tnode *makeAbsNode(struct tnode *e){
++    if(e->type != TYPE_INT) typeErr("abs() needs an int expression", "", "");
++    struct tnode *n = newNode(NODE_ABS, TYPE_INT);
++    n->left = e;
++    return n;
++}
+ struct tnode *makeNewNode(struct tnode *var, char *cname){
+     if(!isClassType(var->type)) typeErr("new() needs a variable of a class type", "", "");
+     struct Classtable *c = CLookup(cname);
+--- original/tnode.h
++++ solution/tnode.h
+@@ -23,6 +23,8 @@
+ #define NODE_NEW 22
+ #define NODE_DELETE 23
+ #define NODE_METHOD 24
++#define NODE_ABS 27
++struct tnode *makeAbsNode(struct tnode *e);
+ struct tnode *makeSelfNode(void);
+ struct tnode *makeMethodCallNode(struct tnode *obj, char *mname, struct tnode *args);
+ struct tnode *makeNewNode(struct tnode *var, char *cname);

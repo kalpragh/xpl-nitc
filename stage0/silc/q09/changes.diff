@@ -1,0 +1,128 @@
+--- original/classtable.c
++++ solution/classtable.c
+@@ -173,4 +173,10 @@
+             fprintf(out, "MOV R0, F%d\n", m->flabel);
+             fprintf(out, "MOV [%d], R0\n", c->vtableBase + m->funcposition);
+         }
+-}
+\ No newline at end of file
++}
++int InstanceofBases(struct Typetable *target, int *bases){
++    int n = 0;
++    for(struct Classtable *c = Chead; c; c = c->next)
++        if(classAssignable(target, c->type)) bases[n++] = c->vtableBase;
++    return n;
++}
+--- original/classtable.h
++++ solution/classtable.h
+@@ -34,5 +34,6 @@
+ Fieldlist *Class_Flookup(struct Classtable *c, char *name);
+ int classAssignable(struct Typetable *lhs, struct Typetable *rhs);
+ void ClassTablePrint(void);
++int InstanceofBases(struct Typetable *target, int *bases);
+ struct Memberfunclist *Class_MlookupSig(struct Classtable *c, char *name, struct Paramstruct *params);
+ #endif
+\ No newline at end of file
+--- original/expr.l
++++ solution/expr.l
+@@ -67,6 +67,7 @@
+ "new"       { return NEW; }
+ "delete"    { return DELETE; }
+ "self"      { return SELF; }
++"instanceof" { return INSTANCEOF; }
+ [a-zA-Z][a-zA-Z0-9]* {
+     yylval.node = calloc(1, sizeof(struct tnode));
+     yylval.node->nodetype = 'V';
+--- original/expr.y
++++ solution/expr.y
+@@ -99,7 +99,7 @@
+ %token RETURN
+ %token TUPLE
+ %token TYPE ENDTYPE NULLT ALLOC FREE INITIALIZE
+-%token CLASS ENDCLASS EXTENDS NEW DELETE SELF
++%token CLASS ENDCLASS EXTENDS NEW DELETE SELF INSTANCEOF
+ %type <node> MethodCall
+ %token <node> STRING
+ %type <field> FieldList Field
+@@ -745,6 +745,7 @@
+   }
+   | FieldRef             { $$ = $1; }
+   | MethodCall           { $$ = $1; }
++  | INSTANCEOF '(' ID ',' ID ')' { $$ = makeInstanceofNode(scalarVarNode($3->varname), $5->varname); }
+   | NULLT                { $$ = makeNullNode(); }
+   | FREE '(' UVar ')'    { $$ = makeFreeNode($3); }
+   | INITIALIZE '(' ')'   { $$ = makeInitNode(); }
+@@ -967,6 +968,9 @@
+         case NODE_METHOD:
+             printf("METHOD(%s)\n", t->varname); 
+             break;
++        case NODE_INSTANCEOF:
++            printf("INSTANCEOF\n");
++            break;
+         case NODE_NEW:    
+             printf("NEW\n");    
+             break;
+--- original/tnode.c
++++ solution/tnode.c
+@@ -1093,6 +1093,26 @@
+             for(int i = saved - 1; i >= 0; i--) fprintf(fp, "POP R%d\n", i);
+             return result;
+         }
++        case NODE_INSTANCEOF: {
++            int bases[64];
++            int n = InstanceofBases(t->target, bases);
++            int ra = codegenClassAddr(t->left);
++            fprintf(fp, "ADD R%d, 1\n", ra);
++            fprintf(fp, "MOV R%d, [R%d]\n", ra, ra);
++            int rres = getreg();
++            int rc = getreg();
++            int rt = getreg();
++            fprintf(fp, "MOV R%d, 0\n", rres);
++            for(int i = 0; i < n; i++){
++                fprintf(fp, "MOV R%d, R%d\n", rc, ra);
++                fprintf(fp, "MOV R%d, %d\n", rt, bases[i]);
++                fprintf(fp, "EQ R%d, R%d\n", rc, rt);
++                fprintf(fp, "ADD R%d, R%d\n", rres, rc);
++            }
++            fprintf(fp, "MOV R%d, R%d\n", ra, rres);
++            freereg(); freereg(); freereg();
++            return ra;
++        }
+         case NODE_RETURN: {
+             if(strcmp(codegenFunc->name, "main") == 0){
+                 codegen(t->left);
+@@ -1290,6 +1310,15 @@
+     n->val = m->funcposition;
+     return n;
+ }
++struct tnode *makeInstanceofNode(struct tnode *var, char *cname){
++    if(!isClassType(var->type)) typeErr("instanceof needs a variable of a class type", "", "");
++    struct Classtable *c = CLookup(cname);
++    if(c == NULL) typeErr("unknown class '%s' in instanceof", cname, "");
++    struct tnode *n = newNode(NODE_INSTANCEOF, TYPE_BOOL);
++    n->left = var;
++    n->target = c->type;
++    return n;
++}
+ struct tnode *makeNewNode(struct tnode *var, char *cname){
+     if(!isClassType(var->type)) typeErr("new() needs a variable of a class type", "", "");
+     struct Classtable *c = CLookup(cname);
+--- original/tnode.h
++++ solution/tnode.h
+@@ -23,6 +23,8 @@
+ #define NODE_NEW 22
+ #define NODE_DELETE 23
+ #define NODE_METHOD 24
++#define NODE_INSTANCEOF 26
++struct tnode *makeInstanceofNode(struct tnode *var, char *cname);
+ struct tnode *makeSelfNode(void);
+ struct tnode *makeMethodCallNode(struct tnode *obj, char *mname, struct tnode *args);
+ struct tnode *makeNewNode(struct tnode *var, char *cname);
+@@ -40,6 +42,7 @@
+     struct Lsymbol *Lentry;
+     struct TupleType *ttype;
+     Fieldlist *field;
++    struct Typetable *target;
+     struct tnode *left;
+     struct tnode *middle;
+     struct tnode *right;

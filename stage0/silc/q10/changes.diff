@@ -1,0 +1,18 @@
+--- original/expr.y
++++ solution/expr.y
+@@ -107,6 +107,7 @@
+ %left '<' '>' LE GE EQ NE
+ %left '+' '-'
+ %left '*' '/'
++%right UMINUS
+ 
+ %type <node> Slist Stmt Expr Array Array2D FieldRef UVar 
+ %type <type> type
+@@ -694,6 +695,7 @@
+   | Expr EQ Expr { $$ = createtree(0,TYPE_NONE,NODE_EQ,NULL,$1,NULL,$3); }
+   | Expr NE Expr { $$ = createtree(0,TYPE_NONE,NODE_NE,NULL,$1,NULL,$3); }
+   | '(' Expr ')'  { $$ = $2; }
++  | '-' Expr %prec UMINUS { $$ = createtree(0,TYPE_NONE,'-',NULL,createtree(0,TYPE_INT,'N',NULL,NULL,NULL,NULL),NULL,$2); }
+   | NUM           { $$ = $1; }
+   | ID
+     {

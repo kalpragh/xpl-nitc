@@ -1,0 +1,47 @@
+class
+A {
+    decl
+        public int x;
+        int y;
+        int getY();
+        int setY(int v);
+    enddecl
+    int getY() {
+        decl enddecl
+        begin
+            return self.y;
+        end
+    }
+    int setY(int v) {
+        decl enddecl
+        begin
+            self.y = v;
+            return 0;
+        end
+    }
+}
+B extends A {
+    decl
+        public int z;
+    enddecl
+}
+endclass
+decl
+    A o;
+    B q;
+enddecl
+int main() {
+    decl int t; enddecl
+    begin
+        initialize();
+        o = new(A);
+        o.x = 5;
+        t = o.setY(7);
+        write(o.x + o.getY());
+        q = new(B);
+        q.x = 3;
+        q.z = 4;
+        write(o.y);
+        return 0;
+    end
+}

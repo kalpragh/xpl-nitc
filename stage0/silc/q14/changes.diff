@@ -1,0 +1,17 @@
+--- original/tnode.c
++++ solution/tnode.c
+@@ -944,12 +944,12 @@
+             return -1;
+         }
+         case 'B':{
+-            if(loopDepth==0)return -1;
++            if(loopDepth==0){ printf("Error: break outside a loop\n"); exit(1); }
+             fprintf(fp, "JMP L%d\n",loopEndStack[loopDepth-1]);
+             return -1;
+         }
+         case 'K':{
+-            if(loopDepth==0)return -1;
++            if(loopDepth==0){ printf("Error: continue outside a loop\n"); exit(1); }
+             fprintf(fp, "JMP L%d\n",loopStartStack[loopDepth-1]);
+             return -1;
+         }

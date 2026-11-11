@@ -1,0 +1,20 @@
+--- original/expr.l
++++ solution/expr.l
+@@ -16,7 +16,7 @@
+ "if" { return IF; }
+ "then" { return THEN; }
+ "else" { return ELSE; }
+-"endif" { return ENDIF; }
++"endif"|"fi" { return ENDIF; }
+ 
+ "while" { return WHILE; }
+ "do" { return DO; }
+@@ -66,7 +66,7 @@
+ "extends"   { return EXTENDS; }
+ "new"       { return NEW; }
+ "delete"    { return DELETE; }
+-"self"      { return SELF; }
++"self"|"this" { return SELF; }
+ [a-zA-Z][a-zA-Z0-9]* {
+     yylval.node = calloc(1, sizeof(struct tnode));
+     yylval.node->nodetype = 'V';

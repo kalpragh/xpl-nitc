@@ -1,0 +1,22 @@
+decl
+    int fact(int n);
+enddecl
+int fact(int n){
+    decl int r; enddecl
+    begin
+        if (n <= 1) then
+            r = 1;
+        else
+            r = n * fact(n - 1);
+        endif;
+        return r;
+    end
+}
+int main(){
+    decl int x; enddecl
+    begin
+        read(x);
+        write(fact(x));
+        return 0;
+    end
+}

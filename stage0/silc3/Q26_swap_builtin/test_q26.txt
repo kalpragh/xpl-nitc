@@ -1,0 +1,42 @@
+type
+    pair {
+        int x;
+        int y;
+    }
+endtype
+decl
+    int a, b;
+    int arr[4];
+    pair p;
+enddecl
+int main() {
+    decl int u, v; enddecl
+    begin
+        initialize();
+        a = 3;
+        b = 8;
+        swap(a, b);
+        write(a);
+        write(b);
+        u = 10;
+        v = 20;
+        swap(u, v);
+        write(u);
+        write(v);
+        arr[0] = 1;
+        arr[2] = 9;
+        swap(arr[0], arr[2]);
+        write(arr[0]);
+        write(arr[2]);
+        p = alloc();
+        p.x = 5;
+        p.y = 6;
+        swap(p.x, p.y);
+        write(p.x);
+        write(p.y);
+        swap(a, u);
+        write(a);
+        write(u);
+        return 0;
+    end
+}

@@ -1,0 +1,11 @@
+decl
+    int a;
+enddecl
+int main() {
+    decl enddecl
+    begin
+        a = 1;
+        swap(a, a);
+        return 0;
+    end
+}

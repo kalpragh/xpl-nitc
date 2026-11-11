@@ -1,0 +1,10 @@
+decl
+    int x;
+enddecl
+int main() {
+    decl enddecl
+    begin
+        write(len(x));
+        return 0;
+    end
+}

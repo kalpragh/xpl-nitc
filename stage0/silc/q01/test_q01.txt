@@ -1,0 +1,18 @@
+decl
+    int f(int a, int b);
+enddecl
+int f(int a, int b){
+    decl enddecl
+    begin
+        return a % b;
+    end
+}
+int main(){
+    decl int x, y; enddecl
+    begin
+        read(x); read(y);
+        write(x % y);
+        write(f(x, y) + 100 % 7 * 2);
+        return 0;
+    end
+}

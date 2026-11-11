@@ -1,0 +1,37 @@
+--- original/tnode.c
++++ solution/tnode.c
+@@ -616,6 +616,18 @@
+     struct tnode *idnode = createtree(0, TYPE_NONE, 'V', var, NULL, NULL, NULL);
+     return createtree(f->pos, f->type, NODE_FIELD, NULL, idnode, NULL, NULL);
+ }
++void codegenZeroFill(int raddr, int size){
++    int rp = getreg();
++    int rz = getreg();
++    fprintf(fp, "MOV R%d, R%d\n", rp, raddr);
++    fprintf(fp, "MOV R%d, 0\n", rz);
++    for(int i = 0; i < size; i++){
++        fprintf(fp, "MOV [R%d], R%d\n", rp, rz);
++        if(i < size - 1) fprintf(fp, "ADD R%d, 1\n", rp);
++    }
++    freereg();
++    freereg();
++}
+ int codegen(struct tnode *t){
+ 
+     if(t == NULL)
+@@ -1133,6 +1145,7 @@
+             return libCall("Free", t->left, 0);
+         case NODE_NEW: {
+             int r = libCall("Alloc", NULL, 8);
++            codegenZeroFill(r, 8);
+             int addr = codegenClassAddr(t->left);
+             fprintf(fp, "MOV [R%d], R%d\n", addr, r);
+             fprintf(fp, "ADD R%d, 1\n", addr);
+@@ -1143,6 +1156,7 @@
+         }
+         case NODE_ALLOC: {
+             int r = libCall("Alloc", NULL, t->left->type->size);
++            codegenZeroFill(r, t->left->type->size);
+             if(t->left->nodetype == NODE_FIELD){
+                 int addr = codegenFieldAddr(t->left);
+                 fprintf(fp, "MOV [R%d], R%d\n", addr, r);

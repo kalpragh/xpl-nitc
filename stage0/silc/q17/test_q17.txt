@@ -1,0 +1,24 @@
+decl enddecl
+int main() {
+    decl int a, b; enddecl
+    begin
+        read(a);
+        read(b);
+        if (a > 0 && b > 0) then
+            write(1);
+        else
+            write(0);
+        endif;
+        if (a > 0 || b > 0) then
+            write(11);
+        else
+            write(10);
+        endif;
+        if (a > 5 && b > 0 || a == 1) then
+            write(21);
+        else
+            write(20);
+        endif;
+        return 0;
+    end
+}

@@ -1,0 +1,57 @@
+class
+Shape {
+    decl
+        int area();
+    enddecl
+    int area() {
+        decl enddecl
+        begin
+            return 1;
+        end
+    }
+}
+Rect extends Shape {
+    decl
+        int area();
+    enddecl
+    int area() {
+        decl enddecl
+        begin
+            return 2;
+        end
+    }
+}
+Circle extends Shape {
+    decl
+        int area();
+    enddecl
+    int area() {
+        decl enddecl
+        begin
+            return 3;
+        end
+    }
+}
+endclass
+decl
+    Shape s;
+    Shape u;
+enddecl
+int main() {
+    decl enddecl
+    begin
+        initialize();
+        s = new(Rect);
+        u = new(Shape);
+        write(instanceof(s, Rect));
+        write(instanceof(s, Shape));
+        write(instanceof(s, Circle));
+        write(instanceof(u, Rect));
+        if (instanceof(s, Rect)) then
+            write(100);
+        else
+            write(200);
+        endif;
+        return 0;
+    end
+}

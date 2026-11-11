@@ -1,0 +1,17 @@
+decl
+    int add(int a, int b);
+enddecl
+int add(int a, int b){
+    decl enddecl
+    begin
+        return a + b;
+    end
+}
+int main(){
+    decl int x; enddecl
+    begin
+        x = add(3, 4);
+        write(x);
+        return 0;
+    end
+}

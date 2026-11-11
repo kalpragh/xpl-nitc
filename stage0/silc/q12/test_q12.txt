@@ -1,0 +1,30 @@
+class
+A {
+    decl
+        int x;
+        int get();
+    enddecl
+    int get() {
+        decl enddecl
+        begin
+            this.x = 7;
+            return this.x;
+        end
+    }
+}
+endclass
+decl
+    A o;
+enddecl
+int main() {
+    decl int a; enddecl
+    begin
+        initialize();
+        o = new(A);
+        a = o.get();
+        if (a == 7) then
+            write(1);
+        fi;
+        return 0;
+    end
+}

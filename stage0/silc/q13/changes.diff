@@ -1,0 +1,14 @@
+--- original/expr.y
++++ solution/expr.y
+@@ -686,7 +686,10 @@
+     Expr '+' Expr { $$ = createtree(0,TYPE_NONE,'+',NULL,$1,NULL,$3); }
+   | Expr '-' Expr { $$ = createtree(0,TYPE_NONE,'-',NULL,$1,NULL,$3); }
+   | Expr '*' Expr { $$ = createtree(0,TYPE_NONE,'*',NULL,$1,NULL,$3); }
+-  | Expr '/' Expr { $$ = createtree(0,TYPE_NONE,'/',NULL,$1,NULL,$3); }
++  | Expr '/' Expr {
++        if($3->nodetype=='N' && $3->val==0){ printf("Error: division by zero\n"); exit(1); }
++        $$ = createtree(0,TYPE_NONE,'/',NULL,$1,NULL,$3);
++    }
+   | Expr '<' Expr { $$ = createtree(0,TYPE_NONE,'<',NULL,$1,NULL,$3); }
+   | Expr '>' Expr { $$ = createtree(0,TYPE_NONE,'>',NULL,$1,NULL,$3); }
+   | Expr LE Expr { $$ = createtree(0,TYPE_NONE,NODE_LE,NULL,$1,NULL,$3); }

@@ -1,0 +1,13 @@
+decl enddecl
+int main() {
+    decl int x, y; enddecl
+    begin
+        read(x);
+        read(y);
+        write(abs(x));
+        write(abs(y));
+        write(abs(x - y) + abs(0));
+        write(abs(x * y) + 1);
+        return 0;
+    end
+}

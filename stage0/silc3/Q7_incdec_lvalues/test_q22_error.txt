@@ -1,0 +1,18 @@
+type
+    node {
+        int a;
+        node next;
+    }
+endtype
+decl
+    node p;
+enddecl
+int main() {
+    decl enddecl
+    begin
+        initialize();
+        p = alloc();
+        p.next++;
+        return 0;
+    end
+}

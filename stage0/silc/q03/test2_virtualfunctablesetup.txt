@@ -1,0 +1,77 @@
+class
+A {
+    decl
+        int F1();
+        int F0();
+    enddecl
+    int F1() {
+        decl enddecl
+        begin
+            write("In A F1");
+            return 0;
+        end
+    }
+    int F0() {
+        decl enddecl
+        begin
+            write("In A F0");
+            return 0;
+        end
+    }
+}
+B extends A {
+    decl
+        int F0();
+        int F2();
+    enddecl
+    int F0() {
+        decl enddecl
+        begin
+            write("In B F0");
+            return 0;
+        end
+    }
+    int F2() {
+        decl enddecl
+        begin
+            write("In B F2");
+            return 0;
+        end
+    }
+}
+C extends B {
+    decl
+        int F0();
+    enddecl
+    int F0() {
+        decl enddecl
+        begin
+            write("In C F0");
+            return 0;
+        end
+    }
+}
+endclass
+decl
+    A x;
+enddecl
+int main() {
+    decl
+        int n, t;
+    enddecl
+    begin
+        initialize();
+        read(n);
+        if (n < 0) then
+            x = new(A);
+        else
+            if (n == 0) then
+                x = new(B);
+            else
+                x = new(C);
+            endif;
+        endif;
+        t = x.F0();
+        return 0;
+    end
+}

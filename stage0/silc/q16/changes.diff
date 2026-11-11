@@ -1,0 +1,20 @@
+--- original/tnode.c
++++ solution/tnode.c
+@@ -486,6 +486,17 @@
+             exit(1);
+         }
+         temp->type=TYPE_INT;
++        if(l->nodetype=='N' && r->nodetype=='N' && !(nodetype=='/' && r->val==0)){
++            int a=l->val, b=r->val, v=0;
++            if(nodetype=='+') v=a+b;
++            else if(nodetype=='-') v=a-b;
++            else if(nodetype=='*') v=a*b;
++            else v=a/b;
++            temp->nodetype='N';
++            temp->val=v;
++            temp->left=NULL;
++            temp->right=NULL;
++        }
+     }
+     else if(nodetype=='<' || nodetype=='>' || nodetype==NODE_LE || nodetype==NODE_GE || nodetype==NODE_EQ || nodetype==NODE_NE){
+         int ok;

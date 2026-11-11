@@ -1,0 +1,15 @@
+decl
+    int g;
+enddecl
+int main() {
+    decl int x; enddecl
+    begin
+        x = 4;
+        g = -x + 10;
+        write(g);
+        write(-x * -3);
+        write(5 - -2);
+        write(-(x - 10));
+        return 0;
+    end
+}

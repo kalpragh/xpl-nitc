@@ -1,0 +1,10 @@
+--- original/expr.l
++++ solution/expr.l
+@@ -32,6 +32,7 @@
+ ">=" { return GE; }
+ "==" { return EQ; }
+ "!=" { return NE; }
++"<>" { return NE; }
+ "<" { return '<'; }
+ ">" { return '>'; }
+ 

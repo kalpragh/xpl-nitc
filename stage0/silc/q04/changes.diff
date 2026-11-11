@@ -1,0 +1,71 @@
+--- original/classtable.c
++++ solution/classtable.c
+@@ -23,7 +23,7 @@
+ Fieldlist *Class_Flookup(struct Classtable *c, char *name){ return FLookup(c->type, name); }
+ static void inheritFrom(struct Classtable *c, struct Classtable *p){
+     for(Fieldlist *f = p->type->fields; f; f = f->next)
+-        FInstall(c->type, f->name, f->type);
++        FInstall(c->type, f->name, f->type)->isPublic = f->isPublic;
+     struct Memberfunclist **tail = &c->vfunc;
+     for(struct Memberfunclist *m = p->vfunc; m; m = m->next){
+         struct Memberfunclist *copy = calloc(1, sizeof *copy);
+--- original/expr.l
++++ solution/expr.l
+@@ -67,6 +67,7 @@
+ "new"       { return NEW; }
+ "delete"    { return DELETE; }
+ "self"      { return SELF; }
++"public"    { return PUBLIC; }
+ [a-zA-Z][a-zA-Z0-9]* {
+     yylval.node = calloc(1, sizeof(struct tnode));
+     yylval.node->nodetype = 'V';
+--- original/expr.y
++++ solution/expr.y
+@@ -99,7 +99,7 @@
+ %token RETURN
+ %token TUPLE
+ %token TYPE ENDTYPE NULLT ALLOC FREE INITIALIZE
+-%token CLASS ENDCLASS EXTENDS NEW DELETE SELF
++%token CLASS ENDCLASS EXTENDS NEW DELETE SELF PUBLIC
+ %type <node> MethodCall
+ %token <node> STRING
+ %type <field> FieldList Field
+@@ -136,6 +136,7 @@
+ ;
+ CMember:
+     type ID ';'                        { Class_Finstall(currentClass, $1, $2->varname); }
++  | PUBLIC type ID ';'                 { Class_Finstall(currentClass, $2, $3->varname); FLookup(currentClass->type, $3->varname)->isPublic = 1; }
+   | type ID '(' ParamList ')' ';'      { Class_Minstall(currentClass, $2->varname, $1, $4); }
+ ;
+ MDefList: 
+--- original/tnode.c
++++ solution/tnode.c
+@@ -1225,14 +1225,14 @@
+         return makeTupleFieldNode(base->varname, fname);
+     if (!isUserType(base->type))
+         typeErr("cannot access field '%s': not a user-defined type", fname, "");
++    Fieldlist *f = FLookup(base->type, fname);
++    if (!f)
++        typeErr("type '%s' has no field '%s'", base->type->name, fname);
+     if (base->type->isClass) {
+         int isSelf = (base->nodetype == 'V' && base->varname && strcmp(base->varname, "self") == 0);
+-        if (!isSelf)
++        if (!isSelf && !f->isPublic)
+             typeErr("fields of class '%s' are private; cannot access '%s' outside its methods", base->type->name, fname);
+     }
+-    Fieldlist *f = FLookup(base->type, fname);
+-    if (!f)
+-        typeErr("type '%s' has no field '%s'", base->type->name, fname);
+     struct tnode *n = newNode(NODE_FIELD, f->type);
+     n->left = base;
+     n->field = f;
+--- original/typetable.h
++++ solution/typetable.h
+@@ -9,6 +9,7 @@
+     char *name;
+     int fieldIndex;             
+     struct Typetable *type;
++    int isPublic;
+     struct Fieldlist *next;
+ } Fieldlist;
+ 

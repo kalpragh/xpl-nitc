@@ -1,0 +1,85 @@
+decl
+    int heap[1024];
+    int Initialize();
+    int Alloc(int a);
+    int Free(int p);
+enddecl
+int Initialize()
+{
+    decl
+    enddecl
+    begin
+        heap[0] = 0;
+        heap[1] = 16;
+        while (heap[1] < 128) do
+            heap[heap[1]] = 0;
+            heap[1] = heap[1] + 1;
+        endwhile;
+        heap[16] = 16;
+        heap[32] = 32;
+        heap[64] = 64;
+        return 0;
+    end
+}
+int Alloc(int a)
+{
+    decl
+    enddecl
+    begin
+        heap[1] = 1;
+        while (heap[1] * 8 < a + 1) do
+            heap[1] = heap[1] * 2;
+        endwhile;
+        heap[4] = 1000;
+        heap[5] = 0;
+        heap[2] = 16;
+        while (heap[2] < 128) do
+            heap[3] = heap[heap[2]];
+            if (heap[3] >= heap[1]) then
+                if (heap[3] < heap[4]) then
+                    heap[4] = heap[3];
+                    heap[5] = heap[2];
+                endif;
+            endif;
+            heap[2] = heap[2] + 1;
+        endwhile;
+        if (heap[5] != 0) then
+            while (heap[4] > heap[1]) do
+                heap[4] = heap[4] / 2;
+                heap[heap[5] + heap[4]] = heap[4];
+            endwhile;
+            heap[heap[5]] = 0 - heap[1];
+            heap[5] = 1025 + heap[5] * 8;
+        endif;
+        return heap[5];
+    end
+}
+int Free(int p)
+{
+    decl
+    enddecl
+    begin
+        heap[6] = (p - 1025) / 8;
+        heap[7] = 0 - heap[heap[6]];
+        heap[heap[6]] = 0;
+        while (heap[7] < 64) do
+            heap[8] = heap[6] / heap[7];
+            if (heap[8] - (heap[8] / 2) * 2 == 0) then
+                heap[9] = heap[6] + heap[7];
+            else
+                heap[9] = heap[6] - heap[7];
+            endif;
+            if (heap[heap[9]] == heap[7]) then
+                heap[heap[9]] = 0;
+                if (heap[9] < heap[6]) then
+                    heap[6] = heap[9];
+                endif;
+                heap[7] = heap[7] * 2;
+            else
+                break;
+            endif;
+        endwhile;
+        heap[heap[6]] = heap[7];
+        return 0;
+    end
+}

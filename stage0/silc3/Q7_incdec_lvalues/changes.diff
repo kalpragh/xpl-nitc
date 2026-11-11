@@ -1,0 +1,71 @@
+--- original/expr.l
++++ solution/expr.l
+@@ -67,6 +67,8 @@
+ "new"       { return NEW; }
+ "delete"    { return DELETE; }
+ "self"      { return SELF; }
++"++"        { return INC; }
++"--"        { return DEC; }
+ [a-zA-Z][a-zA-Z0-9]* {
+     yylval.node = calloc(1, sizeof(struct tnode));
+     yylval.node->nodetype = 'V';
+--- original/expr.y
++++ solution/expr.y
+@@ -54,6 +54,18 @@
+     return n;
+ }
+ 
++struct tnode *oneNode(void){
++    return createtree(1, TYPE_INT, 'N', NULL, NULL, NULL, NULL);
++}
++struct tnode *updateStmt(struct tnode *lv, int op, struct tnode *rhs){
++    if(lv->type != TYPE_INT){
++        printf("Type Mismatch: the target of an update statement must be an int variable\n");
++        exit(1);
++    }
++    struct tnode *calc = createtree(0, TYPE_NONE, op, NULL, lv, NULL, rhs);
++    return createtree(0, TYPE_NONE, '=', NULL, lv, NULL, calc);
++}
++
+ void noUserType(const char *what){
+     if(isUserType(currentType)){ printf("Error: %s of a user-defined type are not supported\n", what); exit(1); }
+ }
+@@ -99,7 +111,7 @@
+ %token RETURN
+ %token TUPLE
+ %token TYPE ENDTYPE NULLT ALLOC FREE INITIALIZE
+-%token CLASS ENDCLASS EXTENDS NEW DELETE SELF
++%token CLASS ENDCLASS EXTENDS NEW DELETE SELF INC DEC
+ %type <node> MethodCall
+ %token <node> STRING
+ %type <field> FieldList Field
+@@ -108,7 +120,7 @@
+ %left '+' '-'
+ %left '*' '/'
+ 
+-%type <node> Slist Stmt Expr Array Array2D FieldRef UVar 
++%type <node> IncTarget Slist Stmt Expr Array Array2D FieldRef UVar 
+ %type <type> type
+ %type <paramlist> ParamList
+ %type <paramlist> Param
+@@ -542,6 +554,8 @@
+         struct tnode *arrnode =  createtree(0, TYPE_NONE, NODE_ARRAY,NULL, idnode, NULL, $3);
+         $$ = createtree(0, TYPE_NONE, '=',NULL, arrnode, NULL, $6);
+     }
++  | IncTarget INC ';' { $$ = updateStmt($1, '+', oneNode()); }
++  | IncTarget DEC ';' { $$ = updateStmt($1, '-', oneNode()); }
+   | READ '(' ID ')' ';'
+     {
+         struct Lsymbol *lentry = NULL;
+@@ -682,6 +696,11 @@
+   | DELETE '(' UVar ')' ';'            { $$ = makeDeleteNode($3); }
+ ;
+ 
++IncTarget:
++    ID        { $$ = scalarVarNode($1->varname); }
++  | FieldRef  { $$ = $1; }
++  | Array     { $$ = $1; }
++;
+ Expr:
+     Expr '+' Expr { $$ = createtree(0,TYPE_NONE,'+',NULL,$1,NULL,$3); }
+   | Expr '-' Expr { $$ = createtree(0,TYPE_NONE,'-',NULL,$1,NULL,$3); }

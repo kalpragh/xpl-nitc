@@ -1,0 +1,108 @@
+--- original/expr.l
++++ solution/expr.l
+@@ -25,6 +25,9 @@
+ "break" {return BREAK;}
+ "continue" {return CONTINUE; }
+ 
++"for"    { return FOR; }
++"endfor" { return ENDFOR; }
++
+ "repeat" {return REPEAT; }
+ "until" {return UNTIL; }
+ 
+--- original/expr.y
++++ solution/expr.y
+@@ -93,7 +93,7 @@
+ %token DECL ENDDECL INT STR
+ %token IF THEN ELSE ENDIF
+ %token WHILE DO ENDWHILE
+-%token BREAK CONTINUE
++%token BREAK CONTINUE FOR ENDFOR
+ %token LE GE EQ NE
+ %token REPEAT UNTIL
+ %token RETURN
+@@ -108,7 +108,7 @@
+ %left '+' '-'
+ %left '*' '/'
+ 
+-%type <node> Slist Stmt Expr Array Array2D FieldRef UVar 
++%type <node> ForAsg Slist Stmt Expr Array Array2D FieldRef UVar 
+ %type <type> type
+ %type <paramlist> ParamList
+ %type <paramlist> Param
+@@ -617,6 +617,10 @@
+     {
+         $$ = createtree(0,TYPE_NONE,'L',NULL,$3,$6,NULL);
+     }
++  | FOR '(' ForAsg ';' Expr ';' ForAsg ')' DO Slist ENDFOR ';'
++    {
++        $$ = createtree(0,TYPE_NONE,'F',NULL,$5,$10,createtree(0,TYPE_NONE,'C',NULL,$3,NULL,$7));
++    }
+   | BREAK ';'
+     {
+         $$ = createtree(0,TYPE_NONE,'B',NULL,NULL,NULL,NULL);
+@@ -682,6 +686,15 @@
+   | DELETE '(' UVar ')' ';'            { $$ = makeDeleteNode($3); }
+ ;
+ 
++ForAsg:
++    ID '=' Expr
++    {
++        scalarVarNode($1->varname);
++        struct tnode *idnode = createtree(0, TYPE_NONE, 'V', $1->varname, NULL, NULL, NULL);
++        $$ = createtree(0, TYPE_NONE, '=', NULL, idnode, NULL, $3);
++    }
++;
++
+ Expr:
+     Expr '+' Expr { $$ = createtree(0,TYPE_NONE,'+',NULL,$1,NULL,$3); }
+   | Expr '-' Expr { $$ = createtree(0,TYPE_NONE,'-',NULL,$1,NULL,$3); }
+@@ -933,6 +946,10 @@
+             printf("CONTINUE\n");
+             break;
+ 
++        case 'F':
++            printf("FOR\n");
++            break;
++
+         case 'U':
+             printf("REPEAT-UNTIL\n");
+             break;
+--- original/tnode.c
++++ solution/tnode.c
+@@ -514,7 +514,7 @@
+         temp->type = TYPE_NONE;
+     }
+ 
+-    else if(nodetype == 'L' || nodetype=='U' || nodetype=='D'){
++    else if(nodetype == 'L' || nodetype=='U' || nodetype=='D' || nodetype=='F'){
+         if(l->type != TYPE_BOOL){
+             printf("Type error: WHILE condition must be boolean\n");
+             exit(1);
+@@ -797,6 +797,26 @@
+             fprintf(fp,"L%d:\n",label2);
+             return -1;
+         }
++        case 'F':{
++            int lstart=getlabel();
++            int lcont=getlabel();
++            int lend=getlabel();
++            codegenStmt(t->right->left);
++            fprintf(fp,"L%d:\n",lstart);
++            int r=codegen(t->left);
++            fprintf(fp,"JZ R%d, L%d\n",r,lend);
++            freereg();
++            loopStartStack[loopDepth]=lcont;
++            loopEndStack[loopDepth]=lend;
++            loopDepth++;
++            codegenStmt(t->middle);
++            loopDepth--;
++            fprintf(fp,"L%d:\n",lcont);
++            codegenStmt(t->right->right);
++            fprintf(fp,"JMP L%d\n",lstart);
++            fprintf(fp,"L%d:\n",lend);
++            return -1;
++        }
+         case 'I':{
+             int r=codegen(t->left);
+             if(t->right==NULL){

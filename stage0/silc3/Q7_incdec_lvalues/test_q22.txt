@@ -1,0 +1,54 @@
+type
+    node {
+        int a;
+    }
+endtype
+class
+Counter {
+    decl
+        int count;
+        int bump();
+    enddecl
+    int bump() {
+        decl enddecl
+        begin
+            self.count++;
+            self.count++;
+            return self.count;
+        end
+    }
+}
+endclass
+decl
+    int g;
+    int arr[4];
+    node p;
+    Counter c;
+enddecl
+int main() {
+    decl int i, t; enddecl
+    begin
+        initialize();
+        g = 5;
+        g++;
+        write(g);
+        g--;
+        g--;
+        write(g);
+        i = 0;
+        i++;
+        write(i);
+        arr[2] = 9;
+        arr[2]++;
+        write(arr[2]);
+        p = alloc();
+        p.a = 1;
+        p.a++;
+        p.a++;
+        write(p.a);
+        c = new(Counter);
+        t = c.bump();
+        write(t);
+        return 0;
+    end
+}

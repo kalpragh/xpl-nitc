@@ -1,7 +1,7 @@
 %{
 #include<stdio.h>
 #include<stdlib.h>
-#include<string.h>   // ✅ IMPORTANT
+#include<string.h>   
 #include"tnode.h"
 
 struct tnode *root;
@@ -9,7 +9,7 @@ struct tnode *root;
 int yylex(void);
 int yyerror(char *s);
 extern FILE *yyin;
-int memory[26] = {0};   // ✅ initialize
+int memory[26] = {0};   
 %}
 
 %union{

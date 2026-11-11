@@ -1,0 +1,52 @@
+--- original/expr.y
++++ solution/expr.y
+@@ -824,6 +824,31 @@
+     }
+ ;
+ %%
++int hasCycle(struct Gsymbol *f);
++int walkCalls(struct tnode *t){
++    if(t == NULL) return 0;
++    if((t->nodetype == NODE_CALL || t->nodetype == NODE_METHOD) && t->Gentry != NULL){
++        if(hasCycle(t->Gentry)) return 1;
++    }
++    return walkCalls(t->left) || walkCalls(t->middle) || walkCalls(t->right);
++}
++int hasCycle(struct Gsymbol *f){
++    if(f->mark == 1) return 1;
++    if(f->mark == 2) return 0;
++    f->mark = 1;
++    int found = walkCalls(f->funcbody);
++    f->mark = 2;
++    return found;
++}
++void checkNoRecursion(void){
++    for(struct Gsymbol *g = Ghead; g != NULL; g = g->next) g->mark = 0;
++    for(struct Gsymbol *g = Ghead; g != NULL; g = g->next){
++        if(g->isFunction && hasCycle(g)){
++            printf("Error: recursion is not allowed (involving function %s)\n", g->name);
++            exit(1);
++        }
++    }
++}
+ int treeDepth = 0;
+ void printtree(struct tnode *t){
+     if(t==NULL)return;
+@@ -1024,6 +1049,7 @@
+         return 0;
+     }
+ 
++    checkNoRecursion();
+     struct Gsymbol *mf = Lookup("main");
+     if(mf == NULL || !mf->isFunction){ printf("Error: main not found\n"); return 1; }
+     if(mf->type != TYPE_INT){ printf("Error: main must return int\n"); return 1; }
+--- original/symboltable.h
++++ solution/symboltable.h
+@@ -56,6 +56,7 @@
+     struct Lsymbol *locals;
+     struct Classtable *owner;
+     struct tnode *funcbody;
++    int mark;
+     struct Gsymbol *next;
+ };
+ void LInstallSelf(struct Typetable *classType);

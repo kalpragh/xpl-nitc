@@ -1,0 +1,41 @@
+--- original/expr.l
++++ solution/expr.l
+@@ -67,6 +67,8 @@
+ "new"       { return NEW; }
+ "delete"    { return DELETE; }
+ "self"      { return SELF; }
++"++"        { return INC; }
++"--"        { return DEC; }
+ [a-zA-Z][a-zA-Z0-9]* {
+     yylval.node = calloc(1, sizeof(struct tnode));
+     yylval.node->nodetype = 'V';
+--- original/expr.y
++++ solution/expr.y
+@@ -99,7 +99,7 @@
+ %token RETURN
+ %token TUPLE
+ %token TYPE ENDTYPE NULLT ALLOC FREE INITIALIZE
+-%token CLASS ENDCLASS EXTENDS NEW DELETE SELF
++%token CLASS ENDCLASS EXTENDS NEW DELETE SELF INC DEC
+ %type <node> MethodCall
+ %token <node> STRING
+ %type <field> FieldList Field
+@@ -542,6 +542,18 @@
+         struct tnode *arrnode =  createtree(0, TYPE_NONE, NODE_ARRAY,NULL, idnode, NULL, $3);
+         $$ = createtree(0, TYPE_NONE, '=',NULL, arrnode, NULL, $6);
+     }
++  | ID INC ';'
++    {
++        struct tnode *lhs = scalarVarNode($1->varname);
++        struct tnode *rhs = createtree(0,TYPE_NONE,'+',NULL,scalarVarNode($1->varname),NULL,createtree(1,TYPE_INT,'N',NULL,NULL,NULL,NULL));
++        $$ = createtree(0,TYPE_NONE,'=',NULL,lhs,NULL,rhs);
++    }
++  | ID DEC ';'
++    {
++        struct tnode *lhs = scalarVarNode($1->varname);
++        struct tnode *rhs = createtree(0,TYPE_NONE,'-',NULL,scalarVarNode($1->varname),NULL,createtree(1,TYPE_INT,'N',NULL,NULL,NULL,NULL));
++        $$ = createtree(0,TYPE_NONE,'=',NULL,lhs,NULL,rhs);
++    }
+   | READ '(' ID ')' ';'
+     {
+         struct Lsymbol *lentry = NULL;

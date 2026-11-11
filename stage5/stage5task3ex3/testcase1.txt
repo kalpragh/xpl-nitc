@@ -1,0 +1,21 @@
+decl
+    int getNumber();
+    int main();
+enddecl
+
+int getNumber()
+{   
+    decl
+    enddecl
+    begin
+        return 100;
+    end
+}
+
+decl
+enddecl
+begin
+    write(getNumber());
+    return 0;
+end
+

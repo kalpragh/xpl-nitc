@@ -1,0 +1,114 @@
+--- original/expr.l
++++ solution/expr.l
+@@ -28,6 +28,9 @@
+ "repeat" {return REPEAT; }
+ "until" {return UNTIL; }
+ 
++"&&" { return AND; }
++"||" { return OR; }
++
+ "<=" { return LE; }
+ ">=" { return GE; }
+ "==" { return EQ; }
+--- original/expr.y
++++ solution/expr.y
+@@ -94,7 +94,7 @@
+ %token IF THEN ELSE ENDIF
+ %token WHILE DO ENDWHILE
+ %token BREAK CONTINUE
+-%token LE GE EQ NE
++%token LE GE EQ NE AND OR NOT
+ %token REPEAT UNTIL
+ %token RETURN
+ %token TUPLE
+@@ -104,7 +104,10 @@
+ %token <node> STRING
+ %type <field> FieldList Field
+ 
++%left OR
++%left AND
+ %left '<' '>' LE GE EQ NE
++%right NOT
+ %left '+' '-'
+ %left '*' '/'
+ 
+@@ -687,6 +690,9 @@
+   | Expr '-' Expr { $$ = createtree(0,TYPE_NONE,'-',NULL,$1,NULL,$3); }
+   | Expr '*' Expr { $$ = createtree(0,TYPE_NONE,'*',NULL,$1,NULL,$3); }
+   | Expr '/' Expr { $$ = createtree(0,TYPE_NONE,'/',NULL,$1,NULL,$3); }
++  | Expr AND Expr { $$ = createtree(0,TYPE_NONE,NODE_AND,NULL,$1,NULL,$3); }
++  | Expr OR Expr { $$ = createtree(0,TYPE_NONE,NODE_OR,NULL,$1,NULL,$3); }
++  | '!' Expr %prec NOT { $$ = createtree(0,TYPE_NONE,NODE_NOT,NULL,$2,NULL,NULL); }
+   | Expr '<' Expr { $$ = createtree(0,TYPE_NONE,'<',NULL,$1,NULL,$3); }
+   | Expr '>' Expr { $$ = createtree(0,TYPE_NONE,'>',NULL,$1,NULL,$3); }
+   | Expr LE Expr { $$ = createtree(0,TYPE_NONE,NODE_LE,NULL,$1,NULL,$3); }
+--- original/tnode.c
++++ solution/tnode.c
+@@ -499,6 +499,20 @@
+         if(!ok){ printf("Type error in comparison\n"); exit(1); }
+         temp->type=TYPE_BOOL;
+     }
++    else if(nodetype==NODE_AND || nodetype==NODE_OR){
++        if(l->type!=TYPE_BOOL || r->type!=TYPE_BOOL){
++            printf("Type error: && and || need boolean operands\n");
++            exit(1);
++        }
++        temp->type=TYPE_BOOL;
++    }
++    else if(nodetype==NODE_NOT){
++        if(l->type!=TYPE_BOOL){
++            printf("Type error: ! needs a boolean operand\n");
++            exit(1);
++        }
++        temp->type=TYPE_BOOL;
++    }
+     else if(nodetype=='='){
+         if(!typeCompatible(l->type, r->type) || exprIsPointer(l)!=exprIsPointer(r) || l->ttype!=r->ttype){
+             printf("Type mismatch in assignment\n");
+@@ -735,6 +749,34 @@
+             freereg();
+             return r1;
+         }
++        case NODE_AND: {
++            int lfalse=getlabel();
++            int r1=codegen(t->left);
++            fprintf(fp,"JZ R%d, L%d\n",r1,lfalse);
++            int r2=codegen(t->right);
++            fprintf(fp,"MOV R%d, R%d\n",r1,r2);
++            freereg();
++            fprintf(fp,"L%d:\n",lfalse);
++            return r1;
++        }
++        case NODE_OR: {
++            int ltrue=getlabel();
++            int r1=codegen(t->left);
++            fprintf(fp,"JNZ R%d, L%d\n",r1,ltrue);
++            int r2=codegen(t->right);
++            fprintf(fp,"MOV R%d, R%d\n",r1,r2);
++            freereg();
++            fprintf(fp,"L%d:\n",ltrue);
++            return r1;
++        }
++        case NODE_NOT: {
++            int r1=codegen(t->left);
++            int r2=getreg();
++            fprintf(fp,"MOV R%d, 0\n",r2);
++            fprintf(fp,"EQ R%d, R%d\n",r1,r2);
++            freereg();
++            return r1;
++        }
+         case '<': {
+             int r1=codegen(t->left);
+             int r2=codegen(t->right);
+--- original/tnode.h
++++ solution/tnode.h
+@@ -23,6 +23,9 @@
+ #define NODE_NEW 22
+ #define NODE_DELETE 23
+ #define NODE_METHOD 24
++#define NODE_AND 27
++#define NODE_OR 28
++#define NODE_NOT 29
+ struct tnode *makeSelfNode(void);
+ struct tnode *makeMethodCallNode(struct tnode *obj, char *mname, struct tnode *args);
+ struct tnode *makeNewNode(struct tnode *var, char *cname);

@@ -1,0 +1,67 @@
+class
+Shape {
+    decl
+        int area();
+        int describe(int k);
+    enddecl
+    int area() {
+        decl enddecl
+        begin
+            return 1;
+        end
+    }
+    int describe(int k) {
+        decl enddecl
+        begin
+            return k * 10;
+        end
+    }
+}
+Rect extends Shape {
+    decl
+        int w;
+        int h;
+        int setdims(int a, int b);
+        int area();
+        int describe(int k);
+    enddecl
+    int setdims(int a, int b) {
+        decl enddecl
+        begin
+            self.w = a;
+            self.h = b;
+            return 0;
+        end
+    }
+    int area() {
+        decl int base; enddecl
+        begin
+            base = super.area();
+            return base + self.w * self.h;
+        end
+    }
+    int describe(int k) {
+        decl enddecl
+        begin
+            return super.describe(k + 1) + self.area();
+        end
+    }
+}
+endclass
+decl
+    Shape s;
+    Rect r;
+enddecl
+int main() {
+    decl int t; enddecl
+    begin
+        initialize();
+        r = new(Rect);
+        t = r.setdims(3, 4);
+        write(r.area());
+        write(r.describe(2));
+        s = r;
+        write(s.area());
+        return 0;
+    end
+}

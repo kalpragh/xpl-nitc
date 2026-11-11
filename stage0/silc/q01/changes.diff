@@ -1,0 +1,55 @@
+--- original/expr.y
++++ solution/expr.y
+@@ -106,7 +106,7 @@
+ 
+ %left '<' '>' LE GE EQ NE
+ %left '+' '-'
+-%left '*' '/'
++%left '*' '/' '%'
+ 
+ %type <node> Slist Stmt Expr Array Array2D FieldRef UVar 
+ %type <type> type
+@@ -687,6 +687,7 @@
+   | Expr '-' Expr { $$ = createtree(0,TYPE_NONE,'-',NULL,$1,NULL,$3); }
+   | Expr '*' Expr { $$ = createtree(0,TYPE_NONE,'*',NULL,$1,NULL,$3); }
+   | Expr '/' Expr { $$ = createtree(0,TYPE_NONE,'/',NULL,$1,NULL,$3); }
++  | Expr '%' Expr { $$ = createtree(0,TYPE_NONE,'%',NULL,$1,NULL,$3); }
+   | Expr '<' Expr { $$ = createtree(0,TYPE_NONE,'<',NULL,$1,NULL,$3); }
+   | Expr '>' Expr { $$ = createtree(0,TYPE_NONE,'>',NULL,$1,NULL,$3); }
+   | Expr LE Expr { $$ = createtree(0,TYPE_NONE,NODE_LE,NULL,$1,NULL,$3); }
+@@ -853,6 +854,10 @@
+             printf("/\n");
+             break;
+ 
++        case '%':
++            printf("%%\n");
++            break;
++
+         case '<':
+             printf("<\n");
+             break;
+--- original/tnode.c
++++ solution/tnode.c
+@@ -480,7 +480,7 @@
+         }
+         
+     }
+-    else if(nodetype=='+' || nodetype=='*'|| nodetype == '-' || nodetype == '/'){ //arithmatic
++    else if(nodetype=='+' || nodetype=='*'|| nodetype == '-' || nodetype == '/' || nodetype == '%'){ //arithmatic
+         if(l->type!=TYPE_INT || r->type !=TYPE_INT){
+             printf("Type error: invalid operands\n");
+             exit(1);
+@@ -735,6 +735,13 @@
+             freereg();
+             return r1;
+         }
++        case '%':{
++            int r1=codegen(t->left);
++            int r2=codegen(t->right);
++            fprintf(fp,"MOD R%d, R%d\n",r1,r2);
++            freereg();
++            return r1;
++        }
+         case '<': {
+             int r1=codegen(t->left);
+             int r2=codegen(t->right);

@@ -1,0 +1,20 @@
+decl
+    int arr[7];
+    int m[3][4];
+enddecl
+int main() {
+    decl int i, s; enddecl
+    begin
+        s = 0;
+        i = 0;
+        while (i < len(arr)) do
+            arr[i] = i * 2;
+            s = s + arr[i];
+            i = i + 1;
+        endwhile;
+        write(len(arr));
+        write(s);
+        write(len(m));
+        return 0;
+    end
+}

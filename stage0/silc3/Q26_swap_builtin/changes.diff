@@ -1,0 +1,72 @@
+--- original/expr.l
++++ solution/expr.l
+@@ -67,6 +67,7 @@
+ "new"       { return NEW; }
+ "delete"    { return DELETE; }
+ "self"      { return SELF; }
++"swap"      { return SWAP; }
+ [a-zA-Z][a-zA-Z0-9]* {
+     yylval.node = calloc(1, sizeof(struct tnode));
+     yylval.node->nodetype = 'V';
+--- original/expr.y
++++ solution/expr.y
+@@ -54,6 +54,21 @@
+     return n;
+ }
+ 
++struct tnode *swapStmt(struct tnode *a, struct tnode *b){
++    if(a->type != TYPE_INT || b->type != TYPE_INT){
++        printf("Type Mismatch: swap() needs two int variables\n");
++        exit(1);
++    }
++    if(a->nodetype == 'V' && b->nodetype == 'V' && strcmp(a->varname, b->varname) == 0){
++        printf("Error: cannot swap a variable with itself\n");
++        exit(1);
++    }
++    struct tnode *s1 = createtree(0,TYPE_NONE,'=',NULL,a,NULL,createtree(0,TYPE_NONE,'+',NULL,a,NULL,b));
++    struct tnode *s2 = createtree(0,TYPE_NONE,'=',NULL,b,NULL,createtree(0,TYPE_NONE,'-',NULL,a,NULL,b));
++    struct tnode *s3 = createtree(0,TYPE_NONE,'=',NULL,a,NULL,createtree(0,TYPE_NONE,'-',NULL,a,NULL,b));
++    return createtree(0,TYPE_NONE,'C',NULL,s1,NULL,createtree(0,TYPE_NONE,'C',NULL,s2,NULL,s3));
++}
++
+ void noUserType(const char *what){
+     if(isUserType(currentType)){ printf("Error: %s of a user-defined type are not supported\n", what); exit(1); }
+ }
+@@ -99,7 +114,7 @@
+ %token RETURN
+ %token TUPLE
+ %token TYPE ENDTYPE NULLT ALLOC FREE INITIALIZE
+-%token CLASS ENDCLASS EXTENDS NEW DELETE SELF
++%token CLASS ENDCLASS EXTENDS NEW DELETE SELF SWAP
+ %type <node> MethodCall
+ %token <node> STRING
+ %type <field> FieldList Field
+@@ -108,7 +123,7 @@
+ %left '+' '-'
+ %left '*' '/'
+ 
+-%type <node> Slist Stmt Expr Array Array2D FieldRef UVar 
++%type <node> IncTarget Slist Stmt Expr Array Array2D FieldRef UVar 
+ %type <type> type
+ %type <paramlist> ParamList
+ %type <paramlist> Param
+@@ -542,6 +557,7 @@
+         struct tnode *arrnode =  createtree(0, TYPE_NONE, NODE_ARRAY,NULL, idnode, NULL, $3);
+         $$ = createtree(0, TYPE_NONE, '=',NULL, arrnode, NULL, $6);
+     }
++  | SWAP '(' IncTarget ',' IncTarget ')' ';' { $$ = swapStmt($3, $5); }
+   | READ '(' ID ')' ';'
+     {
+         struct Lsymbol *lentry = NULL;
+@@ -682,6 +698,11 @@
+   | DELETE '(' UVar ')' ';'            { $$ = makeDeleteNode($3); }
+ ;
+ 
++IncTarget:
++    ID        { $$ = scalarVarNode($1->varname); }
++  | FieldRef  { $$ = $1; }
++  | Array     { $$ = $1; }
++;
+ Expr:
+     Expr '+' Expr { $$ = createtree(0,TYPE_NONE,'+',NULL,$1,NULL,$3); }
+   | Expr '-' Expr { $$ = createtree(0,TYPE_NONE,'-',NULL,$1,NULL,$3); }

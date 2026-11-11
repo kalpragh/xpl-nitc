@@ -1,0 +1,41 @@
+decl
+    int f(int n);
+enddecl
+int f(int n){
+    decl int r; enddecl
+    begin
+        r = 0;
+        switch (n)
+            case 1: r = 11;
+            case 2: r = 22;
+            default: r = 99;
+        endswitch;
+        return r;
+    end
+}
+int main() {
+    decl int i, s; enddecl
+    begin
+        write(f(1));
+        write(f(2));
+        write(f(7));
+        s = 0;
+        i = 0;
+        while (i < 6) do
+            i = i + 1;
+            switch (i)
+                case 2: s = s + 100;
+                case 3:
+                    continue;
+                case 4:
+                    s = s + 1000;
+                    break;
+                    s = s + 5;
+                case 5: s = s + 10;
+            endswitch;
+            s = s + 1;
+        endwhile;
+        write(s);
+        return 0;
+    end
+}

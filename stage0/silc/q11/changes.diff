@@ -1,0 +1,34 @@
+--- original/tnode.c
++++ solution/tnode.c
+@@ -1128,9 +1128,30 @@
+         }
+         case NODE_INIT:
+             return libCall("Heapset", NULL, 0);
+-        case NODE_FREE:
+         case NODE_DELETE:
+             return libCall("Free", t->left, 0);
++        case NODE_FREE: {
++            int r = libCall("Free", t->left, 0);
++            int rz = getreg();
++            fprintf(fp, "MOV R%d, 0\n", rz);
++            if(t->left->nodetype == NODE_FIELD){
++                int addr = codegenFieldAddr(t->left);
++                fprintf(fp, "MOV [R%d], R%d\n", addr, rz);
++                freereg();
++            } else if(t->left->nodetype == NODE_ARRAY){
++                int addr = codegenaddr(t->left);
++                fprintf(fp, "MOV [R%d], R%d\n", addr, rz);
++                freereg();
++            } else if(t->left->Lentry != NULL){
++                int addr = codegenScalarAddr(t->left);
++                fprintf(fp, "MOV [R%d], R%d\n", addr, rz);
++                freereg();
++            } else {
++                fprintf(fp, "MOV [%d], R%d\n", t->left->Gentry->binding, rz);
++            }
++            freereg();
++            return r;
++        }
+         case NODE_NEW: {
+             int r = libCall("Alloc", NULL, 8);
+             int addr = codegenClassAddr(t->left);

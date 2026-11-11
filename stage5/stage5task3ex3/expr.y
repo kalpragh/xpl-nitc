@@ -856,6 +856,8 @@ int main(int argc, char *argv[]){
 
     if(yyparse() != 0) return 1;
 
+    PrintSymbolTable();
+    
     for(struct Gsymbol *g = Ghead; g != NULL; g = g->next){
         if(g->isFunction && !g->isDefined){
             printf("Error: function %s declared but not defined\n", g->name);

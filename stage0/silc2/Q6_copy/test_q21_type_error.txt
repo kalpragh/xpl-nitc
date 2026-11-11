@@ -1,0 +1,22 @@
+type
+    node {
+        int data;
+        node next;
+    }
+    other {
+        int z;
+    }
+endtype
+decl
+    node p;
+    other o;
+enddecl
+int main() {
+    decl enddecl
+    begin
+        initialize();
+        p = alloc();
+        o = copy(p);
+        return 0;
+    end
+}

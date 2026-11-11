@@ -1,0 +1,24 @@
+decl
+    int a(int n);
+    int b(int n);
+enddecl
+int a(int n){
+    decl enddecl
+    begin
+        return b(n);
+    end
+}
+int b(int n){
+    decl enddecl
+    begin
+        return a(n);
+    end
+}
+int main(){
+    decl int x; enddecl
+    begin
+        read(x);
+        write(a(x));
+        return 0;
+    end
+}

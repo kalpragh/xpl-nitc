@@ -1,0 +1,38 @@
+type
+    node {
+        int data;
+        node next;
+    }
+endtype
+decl
+    int a, b;
+    int arr[5];
+    node p;
+enddecl
+int main() {
+    decl int x; enddecl
+    begin
+        initialize();
+        read(a);
+        read(b);
+        a += b;
+        write(a);
+        a -= 2;
+        write(a);
+        a *= 4;
+        write(a);
+        a /= 3;
+        write(a);
+        x = 10;
+        x += a;
+        write(x);
+        arr[1] = 5;
+        arr[1] += 7;
+        write(arr[1]);
+        p = alloc();
+        p.data = 20;
+        p.data -= 5;
+        write(p.data);
+        return 0;
+    end
+}

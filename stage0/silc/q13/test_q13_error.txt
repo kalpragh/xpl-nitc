@@ -1,0 +1,9 @@
+decl enddecl
+int main() {
+    decl int x; enddecl
+    begin
+        x = 5;
+        write(x / 0);
+        return 0;
+    end
+}

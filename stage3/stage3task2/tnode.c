@@ -148,7 +148,7 @@ int codegen(struct tnode *t){
         case '<': {
             int r1=codegen(t->left);
             int r2=codegen(t->right);
-            fprintf(fp,"LT R%d, R%d\n",r1,r2);
+            fprintf(fp,"LT R%d, R%d\n",r2,r1);
             freereg();
             return r1;
         }

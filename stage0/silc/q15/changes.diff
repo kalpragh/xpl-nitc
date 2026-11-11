@@ -1,0 +1,15 @@
+--- original/symboltable.c
++++ solution/symboltable.c
+@@ -152,6 +152,12 @@
+     struct Paramstruct *q = list;
+     while(q->next != NULL) q = q->next;
+     q->next = p;
++    int count = 0;
++    for(struct Paramstruct *c = list; c != NULL; c = c->next) count++;
++    if(count > 3){
++        printf("Error: a function can have at most 3 parameters\n");
++        exit(1);
++    }
+     return list;
+ }
+ 

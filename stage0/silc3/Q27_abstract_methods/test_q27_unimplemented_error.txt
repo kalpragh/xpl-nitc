@@ -1,0 +1,59 @@
+class
+Shape {
+    decl
+        abstract int area();
+        int twice();
+    enddecl
+    int twice() {
+        decl enddecl
+        begin
+            return self.area() * 2;
+        end
+    }
+}
+Rect extends Shape {
+    decl
+        int w;
+        int h;
+        int setdims(int a, int b);
+    enddecl
+    int setdims(int a, int b) {
+        decl enddecl
+        begin
+            self.w = a;
+            self.h = b;
+            return 0;
+        end
+    }
+}
+Square extends Rect {
+    decl
+        int one();
+    enddecl
+    int one() {
+        decl enddecl
+        begin
+            return 1;
+        end
+    }
+}
+endclass
+decl
+    Shape s;
+    Rect r;
+    Square q;
+enddecl
+int main() {
+    decl int t; enddecl
+    begin
+        initialize();
+        r = new(Rect);
+        t = r.setdims(3, 4);
+        s = r;
+        q = new(Square);
+        t = q.setdims(2, 5);
+        s = q;
+        write(s.twice());
+        return 0;
+    end
+}

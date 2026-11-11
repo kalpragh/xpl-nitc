@@ -1,0 +1,10 @@
+decl enddecl
+int main() {
+    decl int x; enddecl
+    begin
+        x = 2 + 3 * 4;
+        write(x);
+        write(10 - 4 / 2);
+        return 0;
+    end
+}

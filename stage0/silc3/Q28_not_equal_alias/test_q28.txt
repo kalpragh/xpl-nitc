@@ -1,0 +1,19 @@
+decl enddecl
+int main() {
+    decl int a, b; enddecl
+    begin
+        read(a);
+        read(b);
+        if (a <> b) then
+            write(1);
+        else
+            write(0);
+        endif;
+        if (a != b) then
+            write(1);
+        else
+            write(0);
+        endif;
+        return 0;
+    end
+}

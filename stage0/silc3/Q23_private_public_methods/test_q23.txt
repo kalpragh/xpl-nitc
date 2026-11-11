@@ -1,0 +1,47 @@
+class
+Account {
+    decl
+        int balance;
+        private int audit(int v);
+        public int deposit(int v);
+        int total();
+    enddecl
+    int audit(int v) {
+        decl enddecl
+        begin
+            return v * 2;
+        end
+    }
+    int deposit(int v) {
+        decl int t; enddecl
+        begin
+            t = self.audit(v);
+            self.balance = self.balance + t;
+            return self.balance;
+        end
+    }
+    int total() {
+        decl enddecl
+        begin
+            return self.balance;
+        end
+    }
+}
+endclass
+decl
+    Account a;
+enddecl
+int main() {
+    decl int r; enddecl
+    begin
+        initialize();
+        a = new(Account);
+        r = a.deposit(5);
+        write(r);
+        r = a.deposit(7);
+        write(r);
+        r = a.total();
+        write(r);
+        return 0;
+    end
+}
